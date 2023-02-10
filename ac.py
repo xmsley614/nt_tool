@@ -2,11 +2,9 @@ import time
 from datetime import datetime
 import asyncio
 from playwright.async_api import async_playwright
-from styleframe import StyleFrame, Styler, utils
+from styleframe import StyleFrame, Styler
 import pandas as pd
 
-
-# from playwright.sync_api import sync_playwright
 
 def convert_miles(miles: int) -> str:
     return str(miles / 1000) + 'k'

@@ -1,0 +1,3 @@
+pandas>=1.2.4
+playwright>=1.28.0
+styleframe>=4.1
