@@ -1,22 +1,6 @@
 from datetime import datetime
-
-import pandas as pd
-from styleframe import StyleFrame, Styler
-
-from parser import convert_response
+from parser import convert_response, results_to_excel
 from searcher import Searcher
-
-
-def results_to_excel(results, max_stops: int = 1):
-    df = pd.DataFrame(results)
-    df.sort_values('stops', ascending=True, inplace=True)
-    df = df[df['stops'] <= max_stops]
-    df.reset_index()
-    sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
-    sf.set_column_width(['departure_time', 'arrival_time'], width=20)
-    sf.set_column_width(['from_to', 'cash'], width=15)
-    sf.to_excel('output.xlsx').save()
-
 
 if __name__ == '__main__':
     results = []
