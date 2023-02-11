@@ -26,14 +26,32 @@ def convert_cash(cash: int) -> str:
     return 'CAD' + str(cash / 100)
 
 
-def convert_response(response: requests.Response) ->dict:
+def convert_mix(availabilityDetails) -> str:
+    cabin_dict = {
+        'business': 'J',
+        'eco': 'Y',
+        'ecoPremium': 'PY',
+        'first': 'F'
+    }
+    # str_list = []
+    # for x in availabilityDetails:
+    #     print(x)
+    #     # xx = str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']]
+    #     xx = str(x['mileagePercentage']) + '%'
+    #     print(xx)
+    #     str_list.append(xx)
+
+    return "+".join([str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']] for x in availabilityDetails])
+
+
+def convert_response(response: requests.Response) -> dict:
     if response.status_code != 200:
         return dict()
     else:
         response_json = response.json()
         air_bounds = response_json.get('data', {}).get('airBoundGroups', []) if response_json is not None else {}
         flights_info_dict = response_json.get('dictionaries', {}).get('flight',
-                                                                       {}) if response_json is not None else {}
+                                                                      {}) if response_json is not None else {}
         results = []
         cabin_class_dict = {
             'STANDARD': 'Y',
@@ -54,6 +72,8 @@ def convert_response(response: requests.Response) ->dict:
                         'quota': min([x['quota'] for x in pr['availabilityDetails']]),
                         'miles': pr['airOffer']['milesConversion']['convertedMiles']['base'],
                         'cash': pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
+                        'is_mix': pr.get('isMixedCabin', False),
+                        'mix_detail': convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin', False) else ""
                     }
                     prices.append(temp)
                 else:
@@ -62,6 +82,8 @@ def convert_response(response: requests.Response) ->dict:
                 'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices]),
                 'miles': '\n'.join([convert_miles(x['miles']) for x in prices]),
                 'cash': '\n'.join([convert_cash(x['cash']) for x in prices]),
+                'is_mix': '\n'.join([str(x['is_mix']) for x in prices]),
+                'mix_detail': '\n'.join([x['mix_detail'] for x in prices]),
             }
             segs = []
             for sg in segs_raw:
@@ -102,7 +124,6 @@ def convert_response(response: requests.Response) ->dict:
             }
 
             v1 = {**v1, **segs_single, **prices_single}
-
             results.append(v1)
         return results
 
@@ -113,6 +134,6 @@ def results_to_excel(results, max_stops: int = 1):
     df = df[df['stops'] <= max_stops]
     df.reset_index()
     sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
-    sf.set_column_width(['departure_time', 'arrival_time'], width=20)
-    sf.set_column_width(['from_to', 'cash'], width=15)
+    sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)
+    sf.set_column_width(['from_to', 'cash', ], width=15)
     sf.to_excel('output.xlsx').save()

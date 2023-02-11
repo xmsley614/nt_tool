@@ -148,12 +148,11 @@ class Searcher():
         return response
 
     def search_for(self, ori: str, des: str, date: str):
-        self.get_market_token(ori, des, date)
-        r1 = self.get_air_bounds(ori, des, date)
-        return r1
-
-
-if __name__ == '__main__':
-    sc = Searcher()
-    r1 = sc.search_for('PVG', 'NYC', '2023-03-21')
-    print(r1)
+        try:
+            self.get_market_token(ori, des, date)
+            r1 = self.get_air_bounds(ori, des, date)
+            return r1
+        except:
+            r1 = requests.Response
+            r1.status_code = 404
+            return requests.Response()
