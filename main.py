@@ -1,13 +1,14 @@
 import time
 from datetime import datetime
-from parser import convert_response, results_to_excel
+from parser import convert_response, results_to_excel, results_to_dash_table
 from searcher import Searcher
+from web import create_dash_app
 
 if __name__ == '__main__':
     results = []
     max_stops = 1
-    origins = ['BOS', 'ORD']
-    destinations = ['FRA']
+    origins = ['BOS']
+    destinations = ['PVG']
     dates = [
         '2023-02-11',
         # '2023-02-12',
@@ -24,4 +25,6 @@ if __name__ == '__main__':
                 results.extend(v1)
                 # 搜索量大返回异常时，加上延迟
                 # time.sleep(5)
-    results_to_excel(results, max_stops=max_stops)
+    # results_to_excel(results, max_stops=max_stops)
+    app = create_dash_app(results)
+    app.run_server(debug=True)
