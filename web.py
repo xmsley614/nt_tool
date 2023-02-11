@@ -1,8 +1,6 @@
-import datetime
+
 from datetime import date
 
-import pandas as pd
-from pyparsing import results
 
 from parser import results_to_dash_table, convert_response
 from dash import Dash, dash_table, html, dcc, Output, State, Input
