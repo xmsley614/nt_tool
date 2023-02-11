@@ -109,7 +109,7 @@ async def search(playwright, origin: str, destination: str, date: str):
             'duration_in_all': convert_duration(r['boundDetails']['duration']),
         }
 
-        v1 = v1 | segs_single | prices_single
+        v1 = {**v1, **segs_single, **prices_single}
 
         results.append(v1)
     return results
@@ -130,15 +130,15 @@ async def main():
     async with async_playwright() as playwright:
         results = []
         max_stops = 1
-        origins = ['TYO', 'ICN']
+        origins = ['TYO']
         destinations = ['NYC', 'YYZ']
         dates = [
             '2023-03-05',
-            '2023-03-06',
-            '2023-03-07',
-            '2023-03-08',
-            '2023-03-09',
-            '2023-03-10'
+            # '2023-03-06',
+            # '2023-03-07',
+            # '2023-03-08',
+            # '2023-03-09',
+            # '2023-03-10'
         ]
         for ori in origins:
             for des in destinations:
