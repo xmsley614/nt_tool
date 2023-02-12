@@ -89,7 +89,7 @@ class Searcher():
                                aws_service='execute-api',
                                aws_token=self.session_token)
 
-    def get_air_bounds(self, ori: str, des: str, date: str) -> requests.Response:
+    def get_air_bounds(self, ori: str, des: str, date: str, cabin_class: list) -> requests.Response:
         headers = {
             "authority": "akamai-gw.dbaas.aircanada.com",
             "accept": "*/*",
@@ -135,22 +135,24 @@ class Searcher():
                     "destinationLocationCode": des,
                     "departureDateTime": date,
                     "isRequestedBound": True,
-                    "commercialFareFamilies": [
-                        "RWDECO",
-                        "RWDPRECC",
-                        "RWDBUS",
-                        "RWDFIRST"
-                    ]
+                    "commercialFareFamilies": cabin_class
                 }
             ]
         }
         response = requests.post(url, headers=headers, json=data, auth=self.get_auth())
         return response
 
-    def search_for(self, ori: str, des: str, date: str):
+    def search_for(self, ori: str, des: str, date: str, cabin_class=None):
+        if cabin_class is None:
+            cabin_class = [
+                "RWDECO",
+                "RWDPRECC",
+                "RWDBUS",
+                "RWDFIRST"
+            ]
         try:
             self.get_market_token(ori, des, date)
-            r1 = self.get_air_bounds(ori, des, date)
+            r1 = self.get_air_bounds(ori, des, date, cabin_class)
             return r1
         except:
             r1 = requests.Response
