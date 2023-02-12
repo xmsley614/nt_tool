@@ -57,18 +57,19 @@ def convert_response(response: requests.Response, price_filter: dict = {}) -> di
         results = []
         cabin_class_dict = {
             'STANDARD': 'Y',
-            'PYLOW': 'PY',
+            # 'PYLOW': 'PY',  # 目前发现所有超经舱位均为AC自己的动态，且子舱位会使用O舱，与星盟伙伴头等奖励客票F舱子舱位O有冲突，暂时去除所有PY结果。
             'EXECLOW': 'J',
             'FIRSTLOW': 'F',
         }
+        saver_class_list = ['X', 'I', 'O']
         for r in air_bounds:
             r = dict(r)
             prices_raw = [rr for rr in r['airBounds']]
             segs_raw = [rr for rr in r['boundDetails']['segments']]
             prices = []
             for pr in prices_raw:
-                if pr['fareFamilyCode'] == 'STANDARD' or pr['fareFamilyCode'] == 'PYLOW' \
-                        or pr['fareFamilyCode'] == 'EXECLOW' or pr['fareFamilyCode'] == 'FIRSTLOW':
+                if pr['fareFamilyCode'] in cabin_class_dict.keys() and \
+                        all([x['bookingClass'] in saver_class_list for x in pr['availabilityDetails']]):
                     temp = {
                         'cabin_class': cabin_class_dict[pr['fareFamilyCode']],
                         'quota': min([x['quota'] for x in pr['availabilityDetails']]),
@@ -136,14 +137,18 @@ def convert_response(response: requests.Response, price_filter: dict = {}) -> di
 
 
 def results_to_excel(results, max_stops: int = 1):
-    df = pd.DataFrame(results)
-    df.sort_values('stops', ascending=True, inplace=True)
-    df = df[df['stops'] <= max_stops]
-    df.reset_index()
-    sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
-    sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)
-    sf.set_column_width(['from_to', 'cash', ], width=15)
-    sf.to_excel('output.xlsx').save()
+    if len(results) ==0:
+        print('No results at all, finished.')
+    else:
+        df = pd.DataFrame(results)
+        df.sort_values('stops', ascending=True, inplace=True)
+        df = df[df['stops'] <= max_stops]
+        df.reset_index()
+        sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
+        sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)
+        sf.set_column_width(['from_to', 'cash', ], width=15)
+        sf.to_excel('output.xlsx').save()
+        print('Success! Please check the output excel file.')
 
 def results_to_dash_table(results):
     df = pd.DataFrame(results)

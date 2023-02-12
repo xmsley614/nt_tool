@@ -17,9 +17,11 @@ def date_range(start_date, future_date):
 if __name__ == '__main__':
     results = []
     max_stops = 2
-    origins = ['PVG','TYO', 'HKG']
-    destinations = ['LAX','SFO','ORD']
-    start_dt = datetime.strptime('2023-09-27', '%Y-%m-%d')
+    # origins = ['PVG','TYO', 'HKG']
+    origins = ['TYO']
+    # destinations = ['LAX','SFO','ORD']
+    destinations = ['LAX']
+    start_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
     end_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
     dates = date_range(start_dt, end_dt)
     # 分别对应经济、超经、商务、头等，如果不想要某个舱位的结果，可以在列表中去除。
@@ -29,7 +31,6 @@ if __name__ == '__main__':
                    "RWDBUS",
                    "RWDFIRST",
     ]
-
     price_filter = {
         # 'quota': {
         #     'operator': '>=',
