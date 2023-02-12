@@ -3,3 +3,4 @@ openpyxl==3.1.0
 pandas==1.5.3
 requests==2.28.2
 styleframe==4.1
+dash==2.8.1

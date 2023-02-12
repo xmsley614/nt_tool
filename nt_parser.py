@@ -144,3 +144,7 @@ def results_to_excel(results, max_stops: int = 1):
     sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)
     sf.set_column_width(['from_to', 'cash', ], width=15)
     sf.to_excel('output.xlsx').save()
+
+def results_to_dash_table(results):
+    df = pd.DataFrame(results)
+    return df.to_dict('records')
