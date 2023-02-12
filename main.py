@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta
-from parser import convert_response, results_to_excel
+from nt_parser import convert_response, results_to_excel
 from searcher import Searcher
 
 
