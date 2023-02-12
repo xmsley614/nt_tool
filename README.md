@@ -1,5 +1,5 @@
 ### 使用步骤
-1. 配置python运行环境，安装所需的包，注意playwright要额外安装浏览器环境(playwright install)
+1. 配置python运行环境，安装所需的包
 ```
 pip install -r requirements.txt
 ```

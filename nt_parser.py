@@ -4,6 +4,8 @@ import pandas as pd
 import requests
 from styleframe import StyleFrame, Styler
 
+from nt_filter import filter_price
+
 
 def convert_miles(miles: int) -> str:
     return str(miles / 1000) + 'k'
@@ -44,7 +46,7 @@ def convert_mix(availabilityDetails) -> str:
     return "+".join([str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']] for x in availabilityDetails])
 
 
-def convert_response(response: requests.Response) -> dict:
+def convert_response(response: requests.Response, price_filter: dict = {}) -> dict:
     if response.status_code != 200:
         return dict()
     else:
@@ -78,12 +80,16 @@ def convert_response(response: requests.Response) -> dict:
                     prices.append(temp)
                 else:
                     continue
+            prices_filtered = filter_price(prices, price_filter)
+            #  如果所有票价均已被过滤，那么直接进入下一组循环。
+            if len(prices_filtered) == 0:
+                continue
             prices_single = {
-                'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices]),
-                'miles': '\n'.join([convert_miles(x['miles']) for x in prices]),
-                'cash': '\n'.join([convert_cash(x['cash']) for x in prices]),
-                'is_mix': '\n'.join([str(x['is_mix']) for x in prices]),
-                'mix_detail': '\n'.join([x['mix_detail'] for x in prices]),
+                'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices_filtered]),
+                'miles': '\n'.join([convert_miles(x['miles']) for x in prices_filtered]),
+                'cash': '\n'.join([convert_cash(x['cash']) for x in prices_filtered]),
+                'is_mix': '\n'.join([str(x['is_mix']) for x in prices_filtered]),
+                'mix_detail': '\n'.join([x['mix_detail'] for x in prices_filtered]),
             }
             segs = []
             for sg in segs_raw:
@@ -99,6 +105,7 @@ def convert_response(response: requests.Response) -> dict:
                     'duration': flight_info['duration']
                 }
                 segs.append(temp)
+
             segs_single = {
                 'flight_code': '\n'.join([x['flight_code'] for x in segs]),
                 'aircraft': '\n'.join([str(x['aircraft']) for x in segs]),
