@@ -2,7 +2,7 @@
 from datetime import date
 
 
-from parser import results_to_dash_table, convert_response
+from nt_parser import results_to_dash_table, convert_response
 from dash import Dash, dash_table, html, dcc, Output, State, Input
 
 from searcher import Searcher
@@ -18,7 +18,7 @@ class DashApp:
 
             dcc.Input(id='destinations', type='text', value='HKG,PVG',placeholder='Destination IATA code, support comma separated multiple destinations'),
             dcc.DatePickerRange(id='dates',min_date_allowed=date.today(),
-                                initial_visible_month=date.today(),),
+                                initial_visible_month=date.today()),
             html.Button('Search', id='search', n_clicks=0),
             dash_table.DataTable(id='datatable-interactivity',
                                 data = results_to_dash_table([]),
@@ -53,3 +53,9 @@ class DashApp:
                     v1 = convert_response(response)
                     results.extend(v1)
         return results_to_dash_table(results)
+
+
+if __name__ == '__main__':
+    # WEB interface
+    app = DashApp()
+    app.dash_app.run(debug=False)
