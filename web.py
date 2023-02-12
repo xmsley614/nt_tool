@@ -11,7 +11,6 @@ from utils import date_range
 
 class DashApp:
     def __init__(self):
-        self.sc = Searcher()
         self.dash_app = Dash(__name__)
 
         self.dash_app.layout = html.Div([
@@ -40,6 +39,7 @@ class DashApp:
                                 State('dates', 'end_date'),
                                 prevent_initial_call=True,)(self.update_table)
     def update_table(self, n_clicks, origins, destinations, start_date, end_date):
+        sc = Searcher()
         if n_clicks == 0:
             return results_to_dash_table([])
         origins = [''.join(ori.split()) for ori in origins.split(',')]
@@ -49,7 +49,7 @@ class DashApp:
         for ori in origins:
             for des in destinations:
                 for date in dates:
-                    response = self.sc.search_for(ori, des, date)
+                    response = sc.search_for(ori, des, date)
                     v1 = convert_response(response)
                     results.extend(v1)
         return results_to_dash_table(results)
