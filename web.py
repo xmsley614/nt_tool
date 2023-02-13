@@ -2,7 +2,7 @@
 from datetime import date
 
 
-from nt_parser import results_to_dash_table, convert_response
+from nt_parser import results_to_dash_table, convert_response_to_nested_jsons, convert_nested_jsons_to_flatted_jsons
 from dash import Dash, dash_table, html, dcc, Output, State, Input
 
 from searcher import Searcher
@@ -50,8 +50,9 @@ class DashApp:
             for des in destinations:
                 for date in dates:
                     response = sc.search_for(ori, des, date)
-                    v1 = convert_response(response)
-                    results.extend(v1)
+                    v1 = convert_response_to_nested_jsons(response)
+                    v2 = convert_nested_jsons_to_flatted_jsons(v1)
+                    results.extend(v2)
         return results_to_dash_table(results)
 
 

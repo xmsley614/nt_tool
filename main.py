@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta
-from nt_parser import convert_response, results_to_excel
+from nt_parser import convert_response_to_nested_jsons, results_to_excel, convert_nested_jsons_to_flatted_jsons
 from searcher import Searcher
 
 
@@ -51,8 +51,9 @@ if __name__ == '__main__':
             for date in dates:
                 print(f'search for {ori} to {des} on {date} @ {datetime.now().strftime("%H:%M:%S")}')
                 response = sc.search_for(ori, des, date, cabin_class)
-                v1 = convert_response(response, price_filter=price_filter)
-                results.extend(v1)
+                v1 = convert_response_to_nested_jsons(response)
+                v2 = convert_nested_jsons_to_flatted_jsons(v1, price_filter=price_filter)
+                results.extend(v2)
                 # 搜索量大返回异常时，加上延迟
                 # time.sleep(5)
     results_to_excel(results, max_stops=max_stops)

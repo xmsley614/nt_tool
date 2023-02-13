@@ -35,20 +35,17 @@ def convert_mix(availabilityDetails) -> str:
         'ecoPremium': 'PY',
         'first': 'F'
     }
-    # str_list = []
-    # for x in availabilityDetails:
-    #     print(x)
-    #     # xx = str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']]
-    #     xx = str(x['mileagePercentage']) + '%'
-    #     print(xx)
-    #     str_list.append(xx)
-
     return "+".join([str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']] for x in availabilityDetails])
 
 
-def convert_response(response: requests.Response, price_filter: dict = {}) -> dict:
+def convert_response_to_nested_jsons(response: requests.Response) -> list:
+    """
+    Convert response from searcher request.
+    :param response: Response of searcher request.
+    :return: List of nested json. Each json means an itinerary.
+    """
     if response.status_code != 200:
-        return dict()
+        return list()
     else:
         response_json = response.json()
         air_bounds = response_json.get('data', {}).get('airBoundGroups', []) if response_json is not None else {}
@@ -81,17 +78,6 @@ def convert_response(response: requests.Response, price_filter: dict = {}) -> di
                     prices.append(temp)
                 else:
                     continue
-            prices_filtered = filter_price(prices, price_filter)
-            #  如果所有票价均已被过滤，那么直接进入下一组循环。
-            if len(prices_filtered) == 0:
-                continue
-            prices_single = {
-                'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices_filtered]),
-                'miles': '\n'.join([convert_miles(x['miles']) for x in prices_filtered]),
-                'cash': '\n'.join([convert_cash(x['cash']) for x in prices_filtered]),
-                'is_mix': '\n'.join([str(x['is_mix']) for x in prices_filtered]),
-                'mix_detail': '\n'.join([x['mix_detail'] for x in prices_filtered]),
-            }
             segs = []
             for sg in segs_raw:
                 flight_info = flights_info_dict[sg['flightId']]
@@ -107,37 +93,51 @@ def convert_response(response: requests.Response, price_filter: dict = {}) -> di
                 }
                 segs.append(temp)
 
-            segs_single = {
-                'flight_code': '\n'.join([x['flight_code'] for x in segs]),
-                'aircraft': '\n'.join([str(x['aircraft']) for x in segs]),
-                # 'departure': '\n'.join([x['departure'] + '\t' + str(x['departure_time'])  for x in segs]),
-                # 'arrival': '\n'.join([x['arrival'] + '\t' + str(x['arrival_time']) for x in segs]),
-                'from_to': '\n'.join([x['departure'] + '-' + x['arrival'] for x in segs]),
-                'departure_time': '\n'.join([convert_datetime(x['departure_time']) for x in segs]),
-                'arrival_time': '\n'.join([convert_datetime(x['arrival_time']) for x in segs]),
-                'duration': '\n'.join([convert_duration(x['duration']) for x in segs]),
-                'connection_time': '\n'.join([convert_duration(x['connection_time']) for x in segs]),
-            }
-
             v = {
                 'duration_in_all': r['boundDetails']['duration'],
                 'stops': len(segs_raw) - 1,
                 'segments': segs,
                 'price': prices
             }
-
-            v1 = {
-                'stops': len(segs_raw) - 1,
-                'duration_in_all': convert_duration(r['boundDetails']['duration']),
-            }
-
-            v1 = {**v1, **segs_single, **prices_single}
-            results.append(v1)
+            results.append(v)
         return results
 
 
+def convert_nested_jsons_to_flatted_jsons(origin_results: list, price_filter: dict = {}) -> list:
+    flatted_results = []
+    for result in origin_results:
+        segs = result['segments']
+        segs_single = {
+            'flight_code': '\n'.join([x['flight_code'] for x in segs]),
+            'aircraft': '\n'.join([str(x['aircraft']) for x in segs]),
+            'from_to': '\n'.join([x['departure'] + '-' + x['arrival'] for x in segs]),
+            'departure_time': '\n'.join([convert_datetime(x['departure_time']) for x in segs]),
+            'arrival_time': '\n'.join([convert_datetime(x['arrival_time']) for x in segs]),
+            'duration': '\n'.join([convert_duration(x['duration']) for x in segs]),
+            'connection_time': '\n'.join([convert_duration(x['connection_time']) for x in segs]),
+        }
+        prices = result['price']
+        prices_filtered = filter_price(prices, price_filter)
+        #  如果所有票价均已被过滤，那么直接进入下一组循环。
+        if len(prices_filtered) == 0:
+            continue
+        prices_single = {
+            'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices_filtered]),
+            'miles': '\n'.join([convert_miles(x['miles']) for x in prices_filtered]),
+            'cash': '\n'.join([convert_cash(x['cash']) for x in prices_filtered]),
+            'is_mix': '\n'.join([str(x['is_mix']) for x in prices_filtered]),
+            'mix_detail': '\n'.join([x['mix_detail'] for x in prices_filtered]),
+        }
+        v1 = {
+            'stops': result['stops'],
+            'duration_in_all': convert_duration(result['duration_in_all']),
+        }
+        flatted_results.append({**v1, **segs_single, **prices_single})
+    return flatted_results
+
+
 def results_to_excel(results, max_stops: int = 1):
-    if len(results) ==0:
+    if len(results) == 0:
         print('No results at all, finished.')
     else:
         df = pd.DataFrame(results)
@@ -149,6 +149,7 @@ def results_to_excel(results, max_stops: int = 1):
         sf.set_column_width(['from_to', 'cash', ], width=15)
         sf.to_excel('output.xlsx').save()
         print('Success! Please check the output excel file.')
+
 
 def results_to_dash_table(results):
     df = pd.DataFrame(results)
