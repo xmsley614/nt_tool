@@ -5,6 +5,7 @@ import requests
 from styleframe import StyleFrame, Styler
 
 from nt_filter import filter_price
+from nt_sorter import sort_segs
 
 
 def convert_miles(miles: int) -> str:
@@ -103,9 +104,15 @@ def convert_response_to_nested_jsons(response: requests.Response) -> list:
         return results
 
 
-def convert_nested_jsons_to_flatted_jsons(origin_results: list, price_filter: dict = {}) -> list:
+def convert_nested_jsons_to_flatted_jsons(origin_results: list,
+                                          seg_sorter: dict = None,
+                                          price_filter: dict = {}) -> list:
+    # print(origin_results)
+    sorted_results = sort_segs(origin_results, seg_sorter)
+    # sorted_results = origin_results
+
     flatted_results = []
-    for result in origin_results:
+    for result in sorted_results:
         segs = result['segments']
         segs_single = {
             'flight_code': '\n'.join([x['flight_code'] for x in segs]),
@@ -141,8 +148,6 @@ def results_to_excel(results, max_stops: int = 1):
         print('No results at all, finished.')
     else:
         df = pd.DataFrame(results)
-        df.sort_values('stops', ascending=True, inplace=True)
-        df = df[df['stops'] <= max_stops]
         df.reset_index()
         sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
         sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)

@@ -46,13 +46,15 @@ class DashApp:
         destinations = [''.join(des.split()) for des in destinations.split(',')]
         dates = date_range(start_date, end_date)
         results = []
+        nested_jsons_list=[]
         for ori in origins:
             for des in destinations:
                 for date in dates:
                     response = sc.search_for(ori, des, date)
                     v1 = convert_response_to_nested_jsons(response)
-                    v2 = convert_nested_jsons_to_flatted_jsons(v1)
-                    results.extend(v2)
+                    nested_jsons_list.extend(v1)
+        v2 = convert_nested_jsons_to_flatted_jsons(nested_jsons_list)
+        results.extend(v2)
         return results_to_dash_table(results)
 
 

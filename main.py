@@ -15,16 +15,13 @@ def date_range(start_date, future_date):
 
 
 if __name__ == '__main__':
-    results = []
     max_stops = 2
-    # origins = ['PVG','TYO', 'HKG']
-    origins = ['TYO']
-    # destinations = ['LAX','SFO','ORD']
-    destinations = ['LAX']
+    origins = ['PVG','TYO', 'HKG']
+    destinations = ['LAX','SFO','ORD']
     start_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
     end_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
     dates = date_range(start_dt, end_dt)
-    # 分别对应经济、超经、商务、头等，如果不想要某个舱位的结果，可以在列表中去除。
+    #  means eco, pre, biz and first
     cabin_class = [
                    "RWDECO",
                    "RWDPRECC",
@@ -32,10 +29,10 @@ if __name__ == '__main__':
                    "RWDFIRST",
     ]
     price_filter = {
-        # 'quota': {
-        #     'operator': '>=',
-        #     'value': 1
-        # },
+        'quota': {
+            'operator': '>=',
+            'value': 1
+        },
         # 'cabin_class': {
         #     'operator': 'in',
         #     'value': ['J', 'F']
@@ -45,15 +42,23 @@ if __name__ == '__main__':
         #     'value': False
         # }
     }
+    seg_sorter = {
+        'key': 'departure_time',
+        'ascending': True
+    }
     sc = Searcher()
+    results = []
+    nested_jsons_list = []
     for ori in origins:
         for des in destinations:
             for date in dates:
                 print(f'search for {ori} to {des} on {date} @ {datetime.now().strftime("%H:%M:%S")}')
                 response = sc.search_for(ori, des, date, cabin_class)
                 v1 = convert_response_to_nested_jsons(response)
-                v2 = convert_nested_jsons_to_flatted_jsons(v1, price_filter=price_filter)
-                results.extend(v2)
-                # 搜索量大返回异常时，加上延迟
+                nested_jsons_list.extend(v1)
+                # if there are high volume of network requests, add time.sleep
                 # time.sleep(5)
+    v2 = convert_nested_jsons_to_flatted_jsons(nested_jsons_list, seg_sorter=seg_sorter, price_filter=price_filter)
+    results.extend(v2)
+
     results_to_excel(results, max_stops=max_stops)
