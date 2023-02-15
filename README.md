@@ -1,9 +1,9 @@
-### 使用步骤
+## User Guide
 1. install requirements
 ```
 pip install -r requirements.txt
 ```
-2. in main.py set the conditions you want.
+2. In main.py set the conditions you want.
 ```python
     max_stops = 2
     origins = ['PVG','TYO', 'HKG']
