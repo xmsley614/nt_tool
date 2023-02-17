@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 import pandas as pd
 import requests
@@ -39,10 +40,10 @@ def convert_mix(availabilityDetails) -> str:
     return "+".join([str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']] for x in availabilityDetails])
 
 
-def convert_response_to_nested_jsons(response: requests.Response) -> list:
+def convert_response_to_nested_jsons(response: requests.Response) -> List:
     """
     Convert response from searcher request.
-    :param response: Response of searcher request.
+    param response: Response of searcher request.
     :return: List of nested json. Each json means an itinerary.
     """
     if response.status_code != 200:
@@ -66,17 +67,24 @@ def convert_response_to_nested_jsons(response: requests.Response) -> list:
             segs_raw = [rr for rr in r['boundDetails']['segments']]
             prices = []
             for pr in prices_raw:
-                if pr['fareFamilyCode'] in cabin_class_dict.keys() and \
-                        all([x['bookingClass'] in saver_class_list for x in pr['availabilityDetails']]):
-                    temp = {
-                        'cabin_class': cabin_class_dict[pr['fareFamilyCode']],
-                        'quota': min([x['quota'] for x in pr['availabilityDetails']]),
-                        'miles': pr['airOffer']['milesConversion']['convertedMiles']['base'],
-                        'cash': pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
-                        'is_mix': pr.get('isMixedCabin', False),
-                        'mix_detail': convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin', False) else ""
-                    }
-                    prices.append(temp)
+                #  keep price with conditions below:
+                #  fareFamilyCode in cabin_class_dict.keys means the lowest fare of each physical class
+                #  then keep all flights without AC code,
+                #  or with AC code which booking class is XIO.
+                if pr['fareFamilyCode'] in cabin_class_dict.keys():
+                    if all(['AC' not in str(x['flightId']).split('-')[1] or
+                            (x['bookingClass'] in saver_class_list and 'AC' in str(x['flightId']).split('-')[1])
+                            for x in pr['availabilityDetails']]):
+                        temp = {
+                            'cabin_class': cabin_class_dict[pr['fareFamilyCode']],
+                            'quota': min([x['quota'] for x in pr['availabilityDetails']]),
+                            'miles': pr['airOffer']['milesConversion']['convertedMiles']['base'],
+                            'cash': pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
+                            'is_mix': pr.get('isMixedCabin', False),
+                            'mix_detail': convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin',
+                                                                                           False) else ""
+                        }
+                        prices.append(temp)
                 else:
                     continue
             segs = []
