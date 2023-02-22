@@ -89,7 +89,7 @@ class Searcher():
                                aws_service='execute-api',
                                aws_token=self.session_token)
 
-    def get_air_bounds(self, ori: str, des: str, date: str, cabin_class: list) -> requests.Response:
+    def get_air_bounds(self, ori: str, des: str, date: str, ac_searcher_cabin_class: list) -> requests.Response:
         headers = {
             "authority": "akamai-gw.dbaas.aircanada.com",
             "accept": "*/*",
@@ -135,7 +135,7 @@ class Searcher():
                     "destinationLocationCode": des,
                     "departureDateTime": date,
                     "isRequestedBound": True,
-                    "commercialFareFamilies": cabin_class
+                    "commercialFareFamilies": ac_searcher_cabin_class
                 }
             ]
         }
@@ -145,14 +145,21 @@ class Searcher():
     def search_for(self, ori: str, des: str, date: str, cabin_class=None):
         if cabin_class is None:
             cabin_class = [
-                "RWDECO",
-                "RWDPRECC",
-                "RWDBUS",
-                "RWDFIRST"
+                "ECO",
+                "PRE",
+                "BIZ",
+                "FIRST"
             ]
+        ac_searcher_cabin_class_dict = {
+            "ECO": "RWDECO",
+            "PRE": "RWDPRECC",
+            "BIZ": "RWDBUS",
+            "FIRST": "RWDFIRST"
+        }
+        ac_searcher_cabin_class = [ac_searcher_cabin_class_dict[x] for x in cabin_class]
         try:
             self.get_market_token(ori, des, date)
-            r1 = self.get_air_bounds(ori, des, date, cabin_class)
+            r1 = self.get_air_bounds(ori, des, date, ac_searcher_cabin_class)
             return r1
         except:
             r1 = requests.Response

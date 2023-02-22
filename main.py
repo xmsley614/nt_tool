@@ -15,18 +15,18 @@ def date_range(start_date, future_date):
 
 
 if __name__ == '__main__':
-    max_stops = 2
-    origins = ['PVG','TYO', 'HKG']
-    destinations = ['LAX','SFO','ORD']
-    start_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
-    end_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
+    max_stops = 1
+    origins = ['NYC','ORD','IAD', 'YYZ']
+    destinations = ['AUH']
+    start_dt = datetime.strptime('2023-10-05', '%Y-%m-%d')
+    end_dt = datetime.strptime('2023-10-07', '%Y-%m-%d')
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
-                   "RWDECO",
-                   "RWDPRECC",
-                   "RWDBUS",
-                   "RWDFIRST",
+        "ECO",
+        "PRE",
+        "BIZ",
+        "FIRST"
     ]
     price_filter = {
         'quota': {
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                 v1 = convert_response_to_nested_jsons(response)
                 nested_jsons_list.extend(v1)
                 # if there are high volume of network requests, add time.sleep
-                # time.sleep(5)
+                time.sleep(2)
     v2 = convert_nested_jsons_to_flatted_jsons(nested_jsons_list, seg_sorter=seg_sorter, price_filter=price_filter)
     results.extend(v2)
 

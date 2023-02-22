@@ -123,31 +123,31 @@ def convert_nested_jsons_to_flatted_jsons(origin_results: list,
     for result in sorted_results:
         segs = result['segments']
         segs_single = {
-            'flight_code': '\n'.join([x['flight_code'] for x in segs]),
-            'aircraft': '\n'.join([str(x['aircraft']) for x in segs]),
-            'from_to': '\n'.join([x['departure'] + '-' + x['arrival'] for x in segs]),
-            'departure_time': '\n'.join([convert_datetime(x['departure_time']) for x in segs]),
-            'arrival_time': '\n'.join([convert_datetime(x['arrival_time']) for x in segs]),
-            'duration': '\n'.join([convert_duration(x['duration']) for x in segs]),
-            'connection_time': '\n'.join([convert_duration(x['connection_time']) for x in segs]),
+            'flight_code': '-'.join([x['flight_code'] for x in segs]),
+            'aircraft': '-'.join([str(x['aircraft']) for x in segs]),
+            'from_to': ', '.join([x['departure'] + '-' + x['arrival'] for x in segs]),
+            'departure_time': convert_datetime(segs[0]['departure_time']),
+            'arrival_time': convert_datetime(segs[-1]['arrival_time']),
         }
         prices = result['price']
         prices_filtered = filter_price(prices, price_filter)
         #  如果所有票价均已被过滤，那么直接进入下一组循环。
         if len(prices_filtered) == 0:
             continue
-        prices_single = {
-            'cabin_class_and_quota': '\n'.join([x['cabin_class'] + str(x['quota']) for x in prices_filtered]),
-            'miles': '\n'.join([convert_miles(x['miles']) for x in prices_filtered]),
-            'cash': '\n'.join([convert_cash(x['cash']) for x in prices_filtered]),
-            'is_mix': '\n'.join([str(x['is_mix']) for x in prices_filtered]),
-            'mix_detail': '\n'.join([x['mix_detail'] for x in prices_filtered]),
-        }
-        v1 = {
-            'stops': result['stops'],
-            'duration_in_all': convert_duration(result['duration_in_all']),
-        }
-        flatted_results.append({**v1, **segs_single, **prices_single})
+        for pf in prices_filtered:
+            prices_single = {
+                'cabin_class': pf['cabin_class'],
+                'quota': pf['quota'],
+                'miles': convert_miles(pf['miles']),
+                'cash': convert_cash(pf['cash']),
+                'is_mix': pf['is_mix'],
+                'mix_detail': pf['mix_detail'],
+            }
+            v1 = {
+                'stops': result['stops'],
+                'duration_in_all': convert_duration(result['duration_in_all']),
+            }
+            flatted_results.append({**v1, **segs_single, **prices_single})
     return flatted_results
 
 
@@ -157,10 +157,18 @@ def results_to_excel(results, max_stops: int = 1):
     else:
         df = pd.DataFrame(results)
         df.reset_index()
-        sf = StyleFrame(df, styler_obj=Styler(wrap_text=True))
-        sf.set_column_width(['departure_time', 'arrival_time', 'mix_detail'], width=20)
-        sf.set_column_width(['from_to', 'cash', ], width=15)
-        sf.to_excel('output.xlsx').save()
+        width_dict = {}
+        for col in df.columns.tolist():
+            series = df[col]
+            max_len = max((
+                series.astype(str).map(len).max(),  # len of largest item
+                len(str(series.name))  # len of column name/header
+            ))*1.2+1
+            width_dict[col] = max_len
+        sf = StyleFrame(df, styler_obj=Styler())
+        sf.set_column_width_dict(width_dict)
+        writer = sf.to_excel('output.xlsx', row_to_add_filters=0)
+        writer.save()
         print('Success! Please check the output excel file.')
 
 
