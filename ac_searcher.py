@@ -4,7 +4,7 @@ import requests
 from aws_requests_auth.aws_auth import AWSRequestsAuth
 
 
-class Searcher():
+class Ac_Searcher():
     def __init__(self):
         self.get_aws_config()
 
@@ -162,6 +162,7 @@ class Searcher():
             r1 = self.get_air_bounds(ori, des, date, ac_searcher_cabin_class)
             return r1
         except:
+            # TODO: add log
             r1 = requests.Response
             r1.status_code = 404
             return requests.Response()

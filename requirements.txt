@@ -1,6 +1,9 @@
 aws-requests-auth==0.4.3
 openpyxl==3.1.0
 pandas==1.5.3
-requests==2.28.2
+requests>=2.28.1
 styleframe==4.1
 dash==2.8.1
+pydantic>=1.10.5
+dash-bootstrap-components>=1.4.0
+pydantic-computed>=0.2.1

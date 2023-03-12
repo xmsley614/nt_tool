@@ -14,7 +14,6 @@ def do_filter(origin, operator, value):
 
 
 def filter_price(prices: list, price_filter: dict):
-
     if len(price_filter) == 0:
         return prices
     else:
@@ -25,4 +24,6 @@ def filter_price(prices: list, price_filter: dict):
             ):
                 result.append(pr)
         return result
+
+
 

@@ -1,13 +1,14 @@
 import datetime
 from datetime import timedelta
+from typing import List
+from datetime import datetime
 
 
-def date_range(start_date, end_date):
-    """Generate a list of dates between start_date and end_date"""
-
-    start_date = datetime.date.fromisoformat(start_date)
-    end_date = datetime.date.fromisoformat(end_date)
-    current_date = start_date
-    while current_date <= end_date:
-        yield current_date.strftime('%Y-%m-%d')
-        current_date += timedelta(days=1)
+def date_range(start_date:str, end_date:str) ->List[str]:
+    start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+    end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+    date_list = []
+    for n in range(int((end_dt - start_dt).days) + 1):
+        d = start_dt + timedelta(n)
+        date_list.append(d.strftime('%Y-%m-%d'))
+    return date_list
