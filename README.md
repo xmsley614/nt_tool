@@ -1,44 +1,34 @@
 ## User Guide
+### update Mar 12 2023
 1. install requirements
 ```
 pip install -r requirements.txt
 ```
-2. In main.py set the conditions you want.
+2. In use_aa.py or use_ac.py set the conditions you want.
 ```python
-    max_stops = 2
-    origins = ['PVG','TYO', 'HKG']
-    destinations = ['LAX','SFO','ORD']
-    start_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
-    end_dt = datetime.strptime('2023-09-29', '%Y-%m-%d')
+    max_stops = 1
+    origins = ['NYC', 'ORD', 'IAD', 'YYZ']
+    destinations = ['AUH']
+    start_dt = '2023-10-05'
+    end_dt = '2023-10-07'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
-                   "RWDECO",
-                   "RWDPRECC",
-                   "RWDBUS",
-                   "RWDFIRST",
+        "ECO",
+        "PRE",
+        "BIZ",
+        "FIRST"
     ]
-    price_filter = {
-        'quota': {
-            'operator': '>=',
-            'value': 1
-        },
-        # 'cabin_class': {
-        #     'operator': 'in',
-        #     'value': ['J', 'F']
-        # },
-        # 'is_mix': {
-        #     'operator': '==',
-        #     'value': False
-        # }
-    }
-    seg_sorter = {
-        'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
-        'ascending': True
-    }
+    price_filter = PriceFilter(
+        min_quota=2,
+        max_miles_per_person=75000,
+        preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
+        mixed_cabin_accepted=True
+    )
 ```
-3.Run main.py and you will see the output file.
+3. Run use_aa.py or use_ac.py and you will see the output file.
 
+4. You can also run web_branch.py and go through with a web view. Currently the app wiil use both engines to search results.
 
 
 If you like this project, welcome to buy me a coffee.
