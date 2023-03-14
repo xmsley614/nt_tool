@@ -1,18 +1,16 @@
 import time
 from datetime import datetime, timedelta
-
 from nt_models import PriceFilter, CabinClass
-from nt_parser import convert_ac_response_to_models, results_to_excel, convert_nested_jsons_to_flatted_jsons, \
-    filter_models
+from nt_parser import convert_ac_response_to_models, results_to_excel, filter_models
 from ac_searcher import Ac_Searcher
 from utils import date_range
 
 if __name__ == '__main__':
     max_stops = 1
-    origins = ['NYC', 'ORD', 'IAD', 'YYZ']
-    destinations = ['AUH']
-    start_dt = '2023-10-05'
-    end_dt = '2023-10-07'
+    origins = ['PEK']
+    destinations = ['SYD', 'AKL']
+    start_dt = '2023-05-05'
+    end_dt = '2023-05-08'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
@@ -22,8 +20,8 @@ if __name__ == '__main__':
         "FIRST"
     ]
     price_filter = PriceFilter(
-        min_quota=2,
-        max_miles_per_person=75000,
+        min_quota=1,
+        max_miles_per_person=999999,
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
         mixed_cabin_accepted=True
     )

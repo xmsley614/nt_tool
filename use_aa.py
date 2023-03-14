@@ -5,15 +5,14 @@ from aa_searcher import Aa_Searcher
 from nt_models import PriceFilter, CabinClass
 from nt_parser import results_to_excel, convert_nested_jsons_to_flatted_jsons, \
     convert_aa_response_to_models, filter_models
-from searcher import Ac_Searcher
 from utils import date_range
 
 if __name__ == '__main__':
     max_stops = 1
-    origins = ['TYO']
-    destinations = ['HKG']
-    start_dt = '2023-10-05'
-    end_dt = '2023-10-07'
+    origins = ['PEK']
+    destinations = ['SYD', 'MEL', 'BNE']
+    start_dt = '2023-04-15'
+    end_dt = '2023-04-30'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     ]
     price_filter = PriceFilter(
         min_quota=2,
-        max_miles_per_person=25000,
+        max_miles_per_person=999999,
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
         mixed_cabin_accepted=True
     )

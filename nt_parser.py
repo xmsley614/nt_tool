@@ -96,7 +96,7 @@ def convert_ac_response_to_models(response: requests.Response) -> List:
                             excl_cash_in_cents=pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
                             excl_currency='CAD',
                             is_mix=pr.get('isMixedCabin', False),
-                            mix_detail=convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin', False) else ""
+                            mix_detail=convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin', False) else "N/A"
                         )
                         prices.append(temp_pricing)
                 else:
@@ -164,7 +164,7 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
                     excl_cash_in_cents=pr['perPassengerTaxesAndFees']['amount'] * 100,
                     excl_currency=pr['perPassengerTaxesAndFees']['currency'],
                     is_mix=False,
-                    mix_detail=''  # TODO add mix info
+                    mix_detail='N/A'  # TODO add mix info
                 )
                 prices.append(temp_pricing)
             else:

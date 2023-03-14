@@ -82,8 +82,8 @@ class Pricing(BaseModel):
     def convert_cash(excl_cash_in_cents: float, excl_currency: str, **kwargs):
         return excl_currency + str(round(excl_cash_in_cents / 100, 2))
 
-    is_mix: bool = Optional[None]
-    mix_detail: str = Optional[None]
+    is_mix: bool = Optional[bool]
+    mix_detail: str = Optional[str]
 
     class Config:
         use_enum_values = True
@@ -200,33 +200,3 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
-
-
-class YY(BaseModel):
-    ex_departure_time: datetime
-    departure_time: Computed[str]
-    aaa: List[Pricing] = Optional
-
-    @computed('departure_time')
-    def calculate_departure_time(ex_departure_time: datetime, **kwargs):
-        return convert_datetime(ex_departure_time)
-
-    def filter_price(self):
-        keep = []
-        for x in self.aaa:
-            if x.quota > 2:
-                keep.append(x)
-        self.aaa = keep
-
-
-if __name__ == '__main__':
-    # y = parse_obj_as(List[Pricing], [
-    #     {'cabin_class': 'Y', 'quota': 9, 'miles': 20000, 'excl_cash_in_cents': '2690', 'excl_currency': 'USD'},
-    #     {'cabin_class': 'J', 'quota': 1, 'miles': 30000, 'excl_cash_in_cents': '2690', 'excl_currency': 'USD'}])
-    # x = YY(ex_departure_time='2023-03-26T18:00:00.000+03:00', aaa=y)
-    # print(x)
-    # x.filter_price()
-    # print(x)
-
-    z = PriceFilter(min_quota=2)
-    print(z)
