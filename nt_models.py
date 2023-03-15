@@ -35,12 +35,43 @@ class CabinClass(str, Enum):
     F = 'F'
     First = 'F'
 
+    def __gt__(self, other):
+        if self == 'F' and other != 'F':
+            return True
+        elif self == 'J' and other != 'F' and other != 'J':
+            return True
+        elif self == 'W' and other != 'F' and other != 'J' and other != 'W':
+            return True
+        else:
+            return False
+
+    def  __lt__(self, other):
+        return other.__gt__(self)
+
+    def __ge__(self, other):
+        if self == 'F':
+            return True
+        elif self == 'J' and other != 'F':
+            return True
+        elif self == 'W' and other != 'F' and other != 'J':
+            return True
+        elif self == 'Y' and other != 'F' and other != 'J' and other != 'W':
+            return True
+        else:
+            return False
+
+    def __le__(self, other):
+        return other.__ge__(self)
+
+    # def __str__(self):
+    #     return self.value
 
 class Segment(BaseModel):
     flight_code: str
     aircraft: str
     departure: str  # TODO limit the str to only 3 chars
     excl_departure_time: datetime
+    excl_cabin_exist: Optional[List[CabinClass]]
     departure_time: Computed[str]
 
     @computed('departure_time')
@@ -200,3 +231,9 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
+
+if __name__ == '__main__':
+    a = CabinClass.F
+    b = CabinClass.J
+    c = CabinClass.F
+    print(a>=c)

@@ -9,10 +9,10 @@ from utils import date_range
 
 if __name__ == '__main__':
     max_stops = 1
-    origins = ['PEK']
-    destinations = ['SYD', 'MEL', 'BNE']
-    start_dt = '2023-04-15'
-    end_dt = '2023-04-30'
+    origins = ['ORD']
+    destinations = ['TYO']
+    start_dt = '2023-03-25'
+    end_dt = '2023-03-28'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [

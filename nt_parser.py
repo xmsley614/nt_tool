@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 
 import pandas as pd
@@ -6,7 +6,7 @@ import requests
 from styleframe import StyleFrame, Styler
 
 from nt_filter import filter_price
-from nt_models import Pricing, Segment, AirBound, PriceFilter
+from nt_models import Pricing, Segment, AirBound, PriceFilter, CabinClass
 from nt_sorter import sort_segs
 
 
@@ -54,6 +54,24 @@ def convert_mix(availabilityDetails) -> str:
     return "+".join([str(x['mileagePercentage']) + '%' + cabin_dict[x['cabin']] for x in availabilityDetails])
 
 
+def calculate_aa_mix_by_segment(target_cabin_class: CabinClass, duration_list: List[timedelta],
+                                cabin_exist_list: List[List[CabinClass]]):
+    total_duration = sum([x.total_seconds() for x in duration_list])
+    percentage_list = [x.total_seconds() / total_duration for x in duration_list]
+    actual_cabin_list = []
+    for x in cabin_exist_list:
+        x.sort(reverse=True)
+        actual_cabin_list.append(next(v for v in x if target_cabin_class >= v))
+    if all([x == target_cabin_class for x in actual_cabin_list]):
+        is_mix = False
+        mix_detail = 'N/A'
+    else:
+        is_mix = True
+        mix_detail = '+'.join(str(round(percentage_list[x] * 100, )) + '%' + actual_cabin_list[x]
+                             for x in range(len(duration_list)))
+    return is_mix, mix_detail
+
+
 def convert_ac_response_to_models(response: requests.Response) -> List:
     """
     Convert response from searcher request.
@@ -96,7 +114,8 @@ def convert_ac_response_to_models(response: requests.Response) -> List:
                             excl_cash_in_cents=pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
                             excl_currency='CAD',
                             is_mix=pr.get('isMixedCabin', False),
-                            mix_detail=convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin', False) else "N/A"
+                            mix_detail=convert_mix(pr['availabilityDetails']) if pr.get('isMixedCabin',
+                                                                                        False) else "N/A"
                         )
                         prices.append(temp_pricing)
                 else:
@@ -153,6 +172,23 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
     # saver_class_list = ['X', 'I', 'O']
     for r in air_bounds_json:
         r = dict(r)
+        segs_raw = [rr for rr in r['segments']]
+        segs = []
+        for sg in segs_raw:
+            temp_seg = Segment(
+                flight_code=sg['flight']['carrierCode'] + sg['flight']['flightNumber'],
+                aircraft=sg['legs'][0]['aircraft']['code'],
+                departure=sg['origin']['code'],  # TODO limit the str to only 3 chars
+                excl_departure_time=sg['departureDateTime'],
+                excl_cabin_exist=list(set([cabin_class_dict[x['cabinType']] for x in sg['legs'][0]['productDetails']])),
+                arrival=sg['destination']['code'],
+                excl_arrival_time=sg['arrivalDateTime'],
+                # excl_duration_in_seconds=sg['legs'][0]['durationInMinutes'] * 60,
+                excl_duration_in_seconds=sum([x.get('durationInMinutes', 0) * 60 for x in sg['legs']]),
+                # excl_connection_time_in_seconds=sg['legs'][0]['connectionTimeInMinutes'] * 60,
+                excl_connection_time_in_seconds=sum([x.get('connectionTimeInMinutes', 0) * 60 for x in sg['legs']]),
+            )
+            segs.append(temp_seg)
         prices_raw = [rr['cheapestPrice'] for rr in r['productPricing']]
         prices = []
         for pr in prices_raw:
@@ -163,28 +199,18 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
                     miles=pr['perPassengerAwardPoints'],
                     excl_cash_in_cents=pr['perPassengerTaxesAndFees']['amount'] * 100,
                     excl_currency=pr['perPassengerTaxesAndFees']['currency'],
-                    is_mix=False,
-                    mix_detail='N/A'  # TODO add mix info
+                    # is_mix=False,
+                    # mix_detail='N/A'  # TODO add mix info
                 )
+                duration_list = [x.excl_duration_in_seconds for x in segs]
+                cabin_exist_list = [x.excl_cabin_exist for x in segs]
+                is_mix, mix_detail = calculate_aa_mix_by_segment(CabinClass(temp_pricing.cabin_class), duration_list,
+                                                                 cabin_exist_list)
+                temp_pricing.is_mix = is_mix
+                temp_pricing.mix_detail = mix_detail
                 prices.append(temp_pricing)
             else:
                 continue
-        segs_raw = [rr for rr in r['segments']]
-        segs = []
-        for sg in segs_raw:
-            temp_seg = Segment(
-                flight_code=sg['flight']['carrierCode'] + sg['flight']['flightNumber'],
-                aircraft=sg['legs'][0]['aircraft']['code'],
-                departure=sg['origin']['code'],  # TODO limit the str to only 3 chars
-                excl_departure_time=sg['departureDateTime'],
-                arrival=sg['destination']['code'],
-                excl_arrival_time=sg['arrivalDateTime'],
-                # excl_duration_in_seconds=sg['legs'][0]['durationInMinutes'] * 60,
-                excl_duration_in_seconds=sum([x.get('durationInMinutes', 0) * 60 for x in sg['legs']]),
-                # excl_connection_time_in_seconds=sg['legs'][0]['connectionTimeInMinutes'] * 60,
-                excl_connection_time_in_seconds=sum([x.get('connectionTimeInMinutes', 0) * 60 for x in sg['legs']]),
-            )
-            segs.append(temp_seg)
 
         air_bound = AirBound(
             engine='AA',
