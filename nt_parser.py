@@ -5,9 +5,7 @@ import pandas as pd
 import requests
 from styleframe import StyleFrame, Styler
 
-from nt_filter import filter_price
-from nt_models import Pricing, Segment, AirBound, PriceFilter, CabinClass
-from nt_sorter import sort_segs
+from nt_models import Pricing, Segment, AirBound, CabinClass
 
 
 def convert_miles(miles: int) -> str:
@@ -63,7 +61,7 @@ def calculate_aa_mix_by_segment(target_cabin_class: CabinClass, duration_list: L
         x.sort(reverse=True)
         cabin_equal_or_lower_list = [v for v in x if target_cabin_class >= v]
         if len(cabin_equal_or_lower_list) == 0:
-            if len(x) ==1 and x[0] == CabinClass.F:
+            if len(x) == 1 and x[0] == CabinClass.F:
                 actual_cabin_list.append(CabinClass.F)  # domestic F class with international J class
             else:
                 print('error')  # any other situation needs to debug
@@ -75,7 +73,7 @@ def calculate_aa_mix_by_segment(target_cabin_class: CabinClass, duration_list: L
     else:
         is_mix = True
         mix_detail = '+'.join(str(round(percentage_list[x] * 100, )) + '%' + actual_cabin_list[x]
-                             for x in range(len(duration_list)))
+                              for x in range(len(duration_list)))
     return is_mix, mix_detail
 
 
@@ -154,15 +152,6 @@ def convert_ac_response_to_models(response: requests.Response) -> List:
         return results
 
 
-def filter_models(airbounds: List[AirBound], price_filter: PriceFilter) -> List[AirBound]:
-    result = []
-    for ab in airbounds:
-        ab.filter_price(price_filter)
-        if len(ab.price) > 0:
-            result.append(ab)
-    return result
-
-
 def convert_aa_response_to_models(response: requests.Response) -> List:
     if response.status_code != 200:
         return []
@@ -230,46 +219,7 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
     return results
 
 
-def convert_nested_jsons_to_flatted_jsons(origin_results: list,
-                                          seg_sorter: dict = None,
-                                          price_filter: dict = {}) -> list:
-    # print(origin_results)
-    sorted_results = sort_segs(origin_results, seg_sorter)
-    # sorted_results = origin_results
-
-    flatted_results = []
-    for result in sorted_results:
-        segs = result['segments']
-        segs_single = {
-            'flight_code': '-'.join([x['flight_code'] for x in segs]),
-            'aircraft': '-'.join([str(x['aircraft']) for x in segs]),
-            'from_to': ', '.join([x['departure'] + '-' + x['arrival'] for x in segs]),
-            'departure_time': convert_datetime(segs[0]['departure_time']),
-            'arrival_time': convert_datetime(segs[-1]['arrival_time']),
-        }
-        prices = result['price']
-        prices_filtered = filter_price(prices, price_filter)
-        #  如果所有票价均已被过滤，那么直接进入下一组循环。
-        if len(prices_filtered) == 0:
-            continue
-        for pf in prices_filtered:
-            prices_single = {
-                'cabin_class': pf['cabin_class'],
-                'quota': pf['quota'],
-                'miles': convert_miles(pf['miles']),
-                'cash': convert_cash(pf['cash'], currency=pf['currency']),
-                'is_mix': pf['is_mix'],
-                'mix_detail': pf['mix_detail'],
-            }
-            v1 = {
-                'stops': result['stops'],
-                'duration_in_all': convert_duration(result['duration_in_all']),
-            }
-            flatted_results.append({**v1, **segs_single, **prices_single})
-    return flatted_results
-
-
-def results_to_excel(results, max_stops: int = 1):
+def results_to_excel(results):
     if len(results) == 0:
         print('No results at all, finished.')
     else:

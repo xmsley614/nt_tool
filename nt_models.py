@@ -45,7 +45,7 @@ class CabinClass(str, Enum):
         else:
             return False
 
-    def  __lt__(self, other):
+    def __lt__(self, other):
         return other.__gt__(self)
 
     def __ge__(self, other):
@@ -63,8 +63,6 @@ class CabinClass(str, Enum):
     def __le__(self, other):
         return other.__ge__(self)
 
-    # def __str__(self):
-    #     return self.value
 
 class Segment(BaseModel):
     flight_code: str
@@ -125,6 +123,12 @@ class PriceFilter(BaseModel):
     preferred_classes: List[CabinClass] = [CabinClass.F, CabinClass.J, CabinClass.W, CabinClass.Y]
     max_miles_per_person: int = 9999999
     mixed_cabin_accepted: bool = True
+
+
+class AirBoundFilter(BaseModel):
+    max_stops: int = -1
+    airline_include: List[str] = []
+    airline_exclude: List[str] = []
 
 
 class AirBound(BaseModel):
@@ -231,9 +235,3 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
-
-if __name__ == '__main__':
-    a = CabinClass.F
-    b = CabinClass.J
-    c = CabinClass.F
-    print(a>=c)
