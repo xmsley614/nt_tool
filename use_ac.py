@@ -30,10 +30,10 @@ if __name__ == '__main__':
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
         mixed_cabin_accepted=True
     )
-    seg_sorter = {
-        'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
-        'ascending': True
-    }
+    # seg_sorter = {
+    #     'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
+    #     'ascending': True
+    # }
     acs = Ac_Searcher()
     airbounds = []
     for ori in origins:

@@ -6,11 +6,10 @@ pip install -r requirements.txt
 ```
 2. In use_aa.py or use_ac.py set the conditions you want.
 ```python
-    max_stops = 1
-    origins = ['NYC', 'ORD', 'IAD', 'YYZ']
-    destinations = ['AUH']
-    start_dt = '2023-10-05'
-    end_dt = '2023-10-07'
+    origins = ['HKG']
+    destinations = ['KUL']
+    start_dt = '2023-03-31'
+    end_dt = '2023-03-31'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
@@ -19,9 +18,14 @@ pip install -r requirements.txt
         "BIZ",
         "FIRST"
     ]
+    airbound_filter = AirBoundFilter(
+        max_stops=1,
+        airline_include=[],
+        airline_exclude=['MH'],
+    )
     price_filter = PriceFilter(
-        min_quota=2,
-        max_miles_per_person=75000,
+        min_quota=1,
+        max_miles_per_person=999999,
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
         mixed_cabin_accepted=True
     )
