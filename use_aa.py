@@ -46,5 +46,6 @@ if __name__ == '__main__':
     airbounds = filter_models(airbounds, price_filter)
     results = []
     for x in airbounds:
-        results.extend(x.to_flatted_list())
-    results_to_excel(results, max_stops=max_stops)
+        if x.stops <= max_stops:
+            results.extend(x.to_flatted_list())
+    results_to_excel(results)

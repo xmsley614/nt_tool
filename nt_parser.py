@@ -269,7 +269,7 @@ def convert_nested_jsons_to_flatted_jsons(origin_results: list,
     return flatted_results
 
 
-def results_to_excel(results, max_stops: int = 1):
+def results_to_excel(results):
     if len(results) == 0:
         print('No results at all, finished.')
     else:
