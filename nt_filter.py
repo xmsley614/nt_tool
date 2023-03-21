@@ -1,6 +1,6 @@
 from typing import List
-from nt_models import AirBound, PriceFilter, AirBoundFilter
 
+from nt_models import AirBound, PriceFilter, AirBoundFilter
 
 
 def filter_airbounds(airbounds: List[AirBound], airbound_filter: AirBoundFilter) -> List[AirBound]:

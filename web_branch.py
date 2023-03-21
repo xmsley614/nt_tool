@@ -4,7 +4,7 @@ from typing import List
 
 from aa_searcher import Aa_Searcher
 from nt_models import AirBound
-from nt_parser import results_to_dash_table, convert_ac_response_to_models, convert_nested_jsons_to_flatted_jsons, \
+from nt_parser import results_to_dash_table, convert_ac_response_to_models,\
     convert_aa_response_to_models
 from dash import Dash, dash_table, html, dcc, Output, State, Input, ctx
 import dash_bootstrap_components as dbc

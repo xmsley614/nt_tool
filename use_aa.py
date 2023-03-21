@@ -2,17 +2,16 @@ import time
 from datetime import datetime, timedelta
 
 from aa_searcher import Aa_Searcher
-from nt_models import PriceFilter, CabinClass
-from nt_parser import results_to_excel, convert_nested_jsons_to_flatted_jsons, \
-    convert_aa_response_to_models, filter_models
+from nt_models import PriceFilter, CabinClass, AirBoundFilter
+from nt_parser import results_to_excel, convert_aa_response_to_models
+from nt_filter import filter_prices, filter_airbounds
 from utils import date_range
 
 if __name__ == '__main__':
-    max_stops = 1
-    origins = ['ORD']
+    origins = ['DOH']
     destinations = ['TYO']
-    start_dt = '2023-03-25'
-    end_dt = '2023-03-28'
+    start_dt = '2023-05-05'
+    end_dt = '2023-05-25'
     dates = date_range(start_dt, end_dt)
     #  means eco, pre, biz and first
     cabin_class = [
@@ -21,16 +20,21 @@ if __name__ == '__main__':
         "BIZ",
         "FIRST"
     ]
+    airbound_filter = AirBoundFilter(
+        max_stops=1,
+        airline_include=[],
+        airline_exclude=[],
+    )
     price_filter = PriceFilter(
-        min_quota=2,
+        min_quota=1,
         max_miles_per_person=999999,
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
         mixed_cabin_accepted=True
     )
-    seg_sorter = {
-        'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
-        'ascending': True
-    }
+    # seg_sorter = {
+    #     'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
+    #     'ascending': True
+    # }
     aas = Aa_Searcher()
     airbounds = []
     for ori in origins:
@@ -42,9 +46,9 @@ if __name__ == '__main__':
                 airbounds.extend(v1)
                 # if there are high volume of network requests, add time.sleep
                 # time.sleep(1)
-
-    airbounds = filter_models(airbounds, price_filter)
+    airbounds = filter_airbounds(airbounds, airbound_filter)
+    airbounds = filter_prices(airbounds, price_filter)
     results = []
     for x in airbounds:
         results.extend(x.to_flatted_list())
-    results_to_excel(results, max_stops=max_stops)
+    results_to_excel(results)
