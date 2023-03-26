@@ -1,8 +1,8 @@
 import time
 from datetime import datetime, timedelta
-from nt_models import PriceFilter, CabinClass, AirBoundFilter
+from nt_models import CabinClass, PriceFilter
 from nt_parser import convert_ac_response_to_models, results_to_excel
-from nt_filter import filter_prices, filter_airbounds
+from nt_filter import filter_prices, filter_airbounds, AirBoundFilter
 from ac_searcher import Ac_Searcher
 from utils import date_range
 

@@ -72,20 +72,23 @@ class Aa_Searcher():
         return response
 
     def search_for(self, ori: str, des: str, date: str, cabin_class=None):
-        if cabin_class is None:
-            cabin_class = [
-                "ECO",
-                "PRE",
-                "BIZ",
-                "FIRST"
-            ]
-        aa_searcher_cabin_class_dict = {
-            "ECO": "COACH",
-            "PRE": "PREMIUM_ECONOMY",
-            "BIZ": "BUSINESS",
-            "FIRST": "FIRST"
-        }
-        aa_searcher_cabin_class = [aa_searcher_cabin_class_dict[x] for x in cabin_class]
+        # if cabin_class is None:
+        #     cabin_class = [
+        #         "ECO",
+        #         "PRE",
+        #         "BIZ",
+        #         "FIRST"
+        #     ]
+        # aa_searcher_cabin_class_dict = {
+        #     "ECO": "COACH",
+        #     "PRE": "PREMIUM_ECONOMY",
+        #     "BIZ": "BUSINESS",
+        #     "FIRST": "FIRST"
+        # }
+        # aa_searcher_cabin_class = [aa_searcher_cabin_class_dict[x] for x in cabin_class]
+
+        # PREMIUM_ECONOMY is not identified in aa's api, so I remove it and force it return all cabins.
+        aa_searcher_cabin_class = []
         try:
             r1 = self.get_air_bounds(ori, des, date, aa_searcher_cabin_class)
             return r1

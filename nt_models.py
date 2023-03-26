@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 from typing import List, Optional, Union
 from pydantic_computed import Computed, computed
-from pydantic import BaseModel, Field, parse_obj_as
+from pydantic import BaseModel
 from datetime import datetime, timedelta
 
 
@@ -26,14 +26,18 @@ def convert_timedelta(td: Union[timedelta, float]) -> str:
 
 class CabinClass(str, Enum):
     Y = 'Y'
+    ECO = 'Y'
     Economy = 'Y'
     W = 'W'
+    PRE = 'W'
     Premium = 'W'
     Premium_Economy = 'W'
     J = 'J'
+    BIZ = 'J'
     Business = 'J'
     F = 'F'
     First = 'F'
+    FIRST = 'F'
 
     def __gt__(self, other):
         if self == 'F' and other != 'F':
@@ -123,12 +127,6 @@ class PriceFilter(BaseModel):
     preferred_classes: List[CabinClass] = [CabinClass.F, CabinClass.J, CabinClass.W, CabinClass.Y]
     max_miles_per_person: int = 9999999
     mixed_cabin_accepted: bool = True
-
-
-class AirBoundFilter(BaseModel):
-    max_stops: int = -1
-    airline_include: List[str] = []
-    airline_exclude: List[str] = []
 
 
 class AirBound(BaseModel):
@@ -235,3 +233,4 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
+

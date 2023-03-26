@@ -1,9 +1,9 @@
 from datetime import date
 
-from nt_parser import results_to_dash_table, convert_response_to_nested_jsons, convert_nested_jsons_to_flatted_jsons
+from nt_parser import results_to_dash_table, convert_ac_response_to_models, convert_nested_jsons_to_flatted_jsons
 from dash import Dash, dash_table, html, dcc, Output, State, Input
 
-from searcher import Searcher
+from searcher import Ac_Searcher
 from utils import date_range
 
 
@@ -41,7 +41,7 @@ class DashApp:
                                prevent_initial_call=True, )(self.update_table)
 
     def update_table(self, n_clicks, origins, destinations, start_date, end_date):
-        sc = Searcher()
+        sc = Ac_Searcher()
         if n_clicks == 0:
             return results_to_dash_table([])
         origins = [''.join(ori.split()) for ori in origins.split(',')]
@@ -53,7 +53,7 @@ class DashApp:
             for des in destinations:
                 for date in dates:
                     response = sc.search_for(ori, des, date)
-                    v1 = convert_response_to_nested_jsons(response)
+                    v1 = convert_ac_response_to_models(response)
                     nested_jsons_list.extend(v1)
         v2 = convert_nested_jsons_to_flatted_jsons(nested_jsons_list)
         results.extend(v2)

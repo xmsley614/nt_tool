@@ -195,8 +195,6 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
                     miles=pr['perPassengerAwardPoints'],
                     excl_cash_in_cents=pr['perPassengerTaxesAndFees']['amount'] * 100,
                     excl_currency=pr['perPassengerTaxesAndFees']['currency'],
-                    # is_mix=False,
-                    # mix_detail='N/A'  # TODO add mix info
                 )
                 duration_list = [x.excl_duration_in_seconds for x in segs]
                 cabin_exist_list = [x.excl_cabin_exist for x in segs]

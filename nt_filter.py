@@ -1,6 +1,14 @@
 from typing import List
 
-from nt_models import AirBound, PriceFilter, AirBoundFilter
+from pydantic import BaseModel
+
+from nt_models import AirBound, PriceFilter
+
+
+class AirBoundFilter(BaseModel):
+    max_stops: int = -1
+    airline_include: List[str] = []
+    airline_exclude: List[str] = []
 
 
 def filter_airbounds(airbounds: List[AirBound], airbound_filter: AirBoundFilter) -> List[AirBound]:
