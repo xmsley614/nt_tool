@@ -107,14 +107,6 @@ class DashApp:
                         v1 = converter(response)
                         airbounds.extend(v1)
 
-        # @self.dash_app.callback(
-        #     Output('temp_data', 'data'),
-        #     Input('search_data', 'data'),
-        #     prevent_initial_call=True
-        # )
-        # def search_data_to_temp_data(search_data):
-        #     return search_data[:]
-
 
         @self.dash_app.callback(
             Output('search_data', 'data'),
@@ -238,4 +230,4 @@ class DashApp:
 if __name__ == '__main__':
     # WEB interface
     app = DashApp()
-    app.dash_app.run(debug=True)
+    app.dash_app.run(debug=False, host='0.0.0.0')

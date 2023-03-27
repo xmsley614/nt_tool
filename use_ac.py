@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # seg_sorter = {
     #     'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
     #     'ascending': True
-    # }
+    # }e
     acs = Ac_Searcher()
     airbounds = []
     for ori in origins:
