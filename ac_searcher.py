@@ -143,6 +143,8 @@ class Ac_Searcher():
         return response
 
     def search_for(self, ori: str, des: str, date: str, cabin_class=None):
+        ori = ori.upper()
+        des = des.upper()
         if cabin_class is None:
             cabin_class = [
                 "ECO",

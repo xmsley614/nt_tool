@@ -88,6 +88,8 @@ class Aa_Searcher():
         # aa_searcher_cabin_class = [aa_searcher_cabin_class_dict[x] for x in cabin_class]
 
         # PREMIUM_ECONOMY is not identified in aa's api, so I remove it and force it return all cabins.
+        ori = ori.upper()
+        des = des.upper()
         aa_searcher_cabin_class = []
         try:
             r1 = self.get_air_bounds(ori, des, date, aa_searcher_cabin_class)
