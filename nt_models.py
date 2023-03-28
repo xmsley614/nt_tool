@@ -221,9 +221,9 @@ class AirBound(BaseModel):
         temp = []
         for pr in self.price:
             x = all([
-                pr.quota > price_filter.min_quota,
+                pr.quota >= price_filter.min_quota,
                 pr.cabin_class in price_filter.preferred_classes,
-                pr.miles < price_filter.max_miles_per_person,
+                pr.miles <= price_filter.max_miles_per_person,
                 True if price_filter.mixed_cabin_accepted else not pr.is_mix
                 # always True if accepted, else only return not mix
             ])
