@@ -115,7 +115,7 @@ def convert_ac_response_to_models(response: requests.Response) -> List:
                         temp_pricing = Pricing(
                             cabin_class=cabin_class_dict[pr['fareFamilyCode']],
                             quota=min([x['quota'] for x in pr['availabilityDetails']]),
-                            miles=pr['airOffer']['milesConversion']['convertedMiles']['base'],
+                            excl_miles=pr['airOffer']['milesConversion']['convertedMiles']['base'],
                             excl_cash_in_cents=pr['airOffer']['milesConversion']['convertedMiles']['totalTaxes'],
                             excl_currency='CAD',
                             is_mix=pr.get('isMixedCabin', False),
@@ -157,7 +157,8 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
         return []
     else:
         response_json = response.json()
-        air_bounds_json = response_json.get('slices', []) if response_json is not None else {}
+        air_bounds_json = response_json.get('slices', []) if response_json is not None else []
+        cheapest_miles = int((response_json.get('utag', {}) if response_json is not None else {}).get('lowest_award_selling_miles', 99999))
     results = []
     cabin_class_dict = {
         'COACH': 'Y',
@@ -185,14 +186,19 @@ def convert_aa_response_to_models(response: requests.Response) -> List:
                 excl_connection_time_in_seconds=sum([x.get('connectionTimeInMinutes', 0) * 60 for x in sg['legs']]),
             )
             segs.append(temp_seg)
+        is_aa_flight = any(['AA' in sg.flight_code  for sg in segs])
         prices_raw = [rr['cheapestPrice'] for rr in r['productPricing']]
         prices = []
         for pr in prices_raw:
+            # skip dynamic pricing of aa with an extremely high cost
+            if is_aa_flight and pr['perPassengerAwardPoints'] > 3*cheapest_miles:
+                # print("3 times more")
+                continue
             if pr['extendedFareCode'] != '':
                 temp_pricing = Pricing(
                     cabin_class=cabin_class_dict[pr['productType']],
                     quota=convert_aa_quota(pr['seatsRemaining']) if pr['extendedFareCode'] != '' else 0,
-                    miles=pr['perPassengerAwardPoints'],
+                    excl_miles=pr['perPassengerAwardPoints'],
                     excl_cash_in_cents=pr['perPassengerTaxesAndFees']['amount'] * 100,
                     excl_currency=pr['perPassengerTaxesAndFees']['currency'],
                 )

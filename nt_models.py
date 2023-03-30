@@ -106,7 +106,13 @@ class Segment(BaseModel):
 class Pricing(BaseModel):
     cabin_class: CabinClass
     quota: int
-    miles: int
+    excl_miles: int
+    miles: Computed[str]
+
+    @computed('miles')
+    def convert_cash(excl_miles: int, **kwargs):
+        return str(round(excl_miles / 1000, 1)) + 'k'
+
     excl_cash_in_cents: float
     excl_currency: str
     cash: Computed[str]
@@ -161,10 +167,12 @@ class AirBound(BaseModel):
         result = segments[0].departure + '-' + segments[0].arrival
         if len(segments) > 1:
             for x in range(1, len(segments)):
+                connection = segments[x].excl_departure_time - segments[x - 1].excl_arrival_time
+                connection_str = convert_timedelta(connection)
                 if segments[x - 1].arrival == segments[x].departure:
-                    result = result + '-' + segments[x].arrival
+                    result = result + f'({connection_str})' + '-' + segments[x].arrival
                 else:
-                    result = result + ',' + segments[x].departure + '-' + segments[x].arrival
+                    result = result + f'({connection_str})' + ',' + segments[x].departure + '-' + segments[x].arrival
         return result
 
     excl_departure_time: Computed[datetime] = Optional
@@ -209,7 +217,7 @@ class AirBound(BaseModel):
             'excl_duration_in_all_in_seconds': True,
             'excl_departure_time': True,
             'excl_arrival_time': True,
-            'price': {'__all__': {'excl_cash_in_cents', 'excl_currency'}},
+            'price': {'__all__': {'excl_cash_in_cents', 'excl_currency', 'excl_miles'}},
             'segments': False
         }
         temp = self.dict(exclude=excl_dict)
@@ -223,7 +231,7 @@ class AirBound(BaseModel):
             x = all([
                 pr.quota >= price_filter.min_quota,
                 pr.cabin_class in price_filter.preferred_classes,
-                pr.miles <= price_filter.max_miles_per_person,
+                pr.excl_miles <= price_filter.max_miles_per_person,
                 True if price_filter.mixed_cabin_accepted else not pr.is_mix
                 # always True if accepted, else only return not mix
             ])
@@ -233,4 +241,3 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
-
