@@ -21,8 +21,12 @@ def convert_timedelta(td: Union[timedelta, float]) -> str:
         seconds = td
     hour = int(seconds / 3600)
     minute = int(seconds / 60 % 60)
-    return f'{hour}h{minute}m'
-
+    if hour == 0:
+        return f'{minute}m'
+    elif hour > 0:
+        return f'{hour}h{minute}m'
+    else:
+        return 'error duration'
 
 class CabinClass(str, Enum):
     Y = 'Y'
@@ -113,13 +117,13 @@ class Pricing(BaseModel):
     def convert_cash(excl_miles: int, **kwargs):
         return str(round(excl_miles / 1000, 1)) + 'k'
 
-    excl_cash_in_cents: float
+    excl_cash_in_base_unit: float
     excl_currency: str
     cash: Computed[str]
 
     @computed('cash')
-    def convert_cash(excl_cash_in_cents: float, excl_currency: str, **kwargs):
-        return excl_currency + str(round(excl_cash_in_cents / 100, 2))
+    def convert_cash(excl_cash_in_base_unit: float, excl_currency: str, **kwargs):
+        return excl_currency + str(round(excl_cash_in_base_unit, 2))
 
     is_mix: bool = Optional[bool]
     mix_detail: str = Optional[str]
@@ -204,7 +208,7 @@ class AirBound(BaseModel):
             'excl_duration_in_all_in_seconds': True,
             'excl_departure_time': True,
             'excl_arrival_time': True,
-            'price': {'__all__': {'excl_cash_in_cents', 'excl_currency'}},
+            'price': {'__all__': {'excl_cash_in_base_unit', 'excl_currency'}},
             'segments': {'__all__': {'excl_departure_time',
                                      'excl_arrival_time',
                                      'excl_duration_in_seconds',
@@ -217,7 +221,7 @@ class AirBound(BaseModel):
             'excl_duration_in_all_in_seconds': True,
             'excl_departure_time': True,
             'excl_arrival_time': True,
-            'price': {'__all__': {'excl_cash_in_cents', 'excl_currency', 'excl_miles'}},
+            'price': {'__all__': {'excl_cash_in_base_unit', 'excl_currency', 'excl_miles'}},
             'segments': False
         }
         temp = self.dict(exclude=excl_dict)

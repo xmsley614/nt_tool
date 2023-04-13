@@ -4,10 +4,11 @@ from datetime import date
 from typing import List
 
 from aa_searcher import Aa_Searcher
+from dl_searcher import Dl_Searcher
 from nt_filter import AirBoundFilter, filter_airbounds, filter_prices
 from nt_models import AirBound, PriceFilter, CabinClass
 from nt_parser import results_to_dash_table, convert_ac_response_to_models, \
-    convert_aa_response_to_models
+    convert_aa_response_to_models, convert_dl_response_to_models
 from dash import Dash, dash_table, html, dcc, Output, State, Input, ctx
 import dash_bootstrap_components as dbc
 
@@ -118,8 +119,8 @@ class DashApp:
             prevent_initial_call=True
         )
         def search_results(n_clicks, origins, destinations, start_date, end_date):
-            searchers = [Ac_Searcher(), Aa_Searcher()]
-            converters = [convert_ac_response_to_models, convert_aa_response_to_models]
+            searchers = [Ac_Searcher(), Aa_Searcher(), Dl_Searcher()]
+            converters = [convert_ac_response_to_models, convert_aa_response_to_models, convert_dl_response_to_models]
             if n_clicks == 0:
                 return results_to_dash_table([])
             origins = [''.join(ori.split()) for ori in origins.split(',')]
@@ -127,7 +128,7 @@ class DashApp:
             dates = date_range(start_date, end_date)
             airbounds: List[AirBound] = []
             threads = []
-            for x in range(2):
+            for x in range(3):
                 thread = threading.Thread(target=run_thread, args=(
                     searchers[x], converters[x], origins, destinations, dates, airbounds))
                 threads.append(thread)

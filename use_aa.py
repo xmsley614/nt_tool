@@ -11,8 +11,8 @@ from utils import date_range
 if __name__ == '__main__':
     origins = ['LAX']
     destinations = ['TYO']
-    start_dt = '2023-04-05'
-    end_dt = '2023-04-07'
+    start_dt = '2023-05-05'
+    end_dt = '2023-05-07'
     dates = date_range(start_dt, end_dt)
     #  cabin class removed, pls use price filter.
     airbound_filter = AirBoundFilter(
