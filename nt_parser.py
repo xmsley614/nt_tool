@@ -81,11 +81,11 @@ def calculate_dl_price_info(cabin_class_list: List[CabinClass], duration_list: L
     if len(cabin_class_list) == 1:
         cabin_class = cabin_class_list[0]
         is_mix = False
-        mix_detail = ''
+        mix_detail = 'N/A'
     elif all([x == cabin_class_list[0] for x in cabin_class_list]):
         cabin_class = cabin_class_list[0]
         is_mix = False
-        mix_detail = ''
+        mix_detail = 'N/A'
     else:
         all_duration = sum(duration_list)
         longest_duration_index = duration_list.index(max(duration_list))

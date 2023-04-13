@@ -1,10 +1,10 @@
 ## User Guide
-### update Mar 20 2023
+### update Apr 13 2023
 1. install requirements
 ```
 pip install -r requirements.txt
 ```
-2. In use_aa.py or use_ac.py set the conditions you want.
+2. In use_aa.py or use_ac.py or use_dl.py set the conditions you want. 
 ```python
     origins = ['HKG']
     destinations = ['KUL']
