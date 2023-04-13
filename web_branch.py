@@ -2,7 +2,6 @@ import json
 import threading
 from datetime import date
 from typing import List
-
 from aa_searcher import Aa_Searcher
 from dl_searcher import Dl_Searcher
 from nt_filter import AirBoundFilter, filter_airbounds, filter_prices
@@ -11,7 +10,6 @@ from nt_parser import results_to_dash_table, convert_ac_response_to_models, \
     convert_aa_response_to_models, convert_dl_response_to_models
 from dash import Dash, dash_table, html, dcc, Output, State, Input, ctx
 import dash_bootstrap_components as dbc
-
 from ac_searcher import Ac_Searcher
 from nt_sorter import get_default_sort_options, sort_airbounds
 from utils import date_range
@@ -22,17 +20,25 @@ class DashApp:
         self.dash_app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
         self.dash_app.title = 'nt_tool'
         self.dash_app.layout = html.Div([
-            html.Div(
-                [dbc.Input(id='origins', type='text', value='LAX', placeholder='Origin IATA code'),
-
-                 dbc.Input(id='destinations', type='text', value='TYO',
-                           placeholder='Destination IATA code, support comma separated multiple destinations')]
-            ),
-
-            html.Div([dcc.DatePickerRange(id='dates',
-                                          min_date_allowed=date.today(),
-                                          initial_visible_month=date.today(),
-                                          minimum_nights=0)]),
+            html.Div([
+                dbc.Stack([
+                    html.Label('Origin_cities'),
+                    dbc.Input(id='origins', type='text', value='LAX', placeholder='Origin IATA code'),
+                ],direction="horizontal"),
+                dbc.Stack([
+                    html.Label('Destination_cities'),
+                    dbc.Input(id='destinations', type='text', value='TYO',
+                              placeholder='Destination IATA code, support comma separated multiple destinations')
+                ],direction="horizontal")
+            ]),
+            dbc.Label('The system is to search EVERYDAY of the daterange you pick, only ONE-WAY.',
+                      style={'color': 'Red', 'font-size': 20}),
+            html.Div([
+                dcc.DatePickerRange(id='dates',
+                                    min_date_allowed=date.today(),
+                                    initial_visible_month=date.today(),
+                                    minimum_nights=0)
+            ]),
 
             html.Div([dbc.Button('Search',
                                  id='search',
@@ -107,7 +113,6 @@ class DashApp:
                         response = searcher.search_for(ori, des, dt)
                         v1 = converter(response)
                         airbounds.extend(v1)
-
 
         @self.dash_app.callback(
             Output('search_data', 'data'),
