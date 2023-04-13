@@ -133,7 +133,7 @@ class DashApp:
             dates = date_range(start_date, end_date)
             airbounds: List[AirBound] = []
             threads = []
-            for x in range(3):
+            for x in range(len(searchers)):
                 thread = threading.Thread(target=run_thread, args=(
                     searchers[x], converters[x], origins, destinations, dates, airbounds))
                 threads.append(thread)
