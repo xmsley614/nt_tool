@@ -10,6 +10,9 @@ class AirBoundFilter(BaseModel):
     airline_include: List[str] = []
     airline_exclude: List[str] = []
 
+class SearchEngineFilter(BaseModel):
+    search_engine: List[str] = []
+
 
 def filter_airbounds(airbounds: List[AirBound], airbound_filter: AirBoundFilter) -> List[AirBound]:
     result = []
@@ -31,6 +34,16 @@ def filter_airbounds(airbounds: List[AirBound], airbound_filter: AirBoundFilter)
             result.append(ab)
     return result
 
+def filter_search_engine(airbounds: List[AirBound], search_engine_filter: SearchEngineFilter) -> List[AirBound]:
+    result = []
+    print(len(search_engine_filter.search_engine))
+    for ab in airbounds:
+        bool_list = []
+        if len(search_engine_filter.search_engine) > 0:
+            bool_list.append(any([x.upper() in ab.engine for x in search_engine_filter.search_engine]))
+        if all(bool_list):
+            result.append(ab)
+    return result
 
 def filter_prices(airbounds: List[AirBound], price_filter: PriceFilter) -> List[AirBound]:
     result = []
