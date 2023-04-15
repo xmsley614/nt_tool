@@ -4,7 +4,7 @@ from datetime import date
 from typing import List
 from aa_searcher import Aa_Searcher
 from dl_searcher import Dl_Searcher
-from nt_filter import AirBoundFilter, filter_airbounds, filter_prices
+from nt_filter import AirBoundFilter, SearchEngineFilter, filter_airbounds, filter_prices, filter_search_engine
 from nt_models import AirBound, PriceFilter, CabinClass
 from nt_parser import results_to_dash_table, convert_ac_response_to_models, \
     convert_aa_response_to_models, convert_dl_response_to_models
@@ -58,6 +58,13 @@ class DashApp:
                     ['ECO', 'PRE', 'BIZ', 'FIRST'],
                     id='cabin_class',
                     style={'color': 'Red', 'font-size': 20},
+                    inline=True
+                ),
+                dbc.Checklist(
+                    ['AA', 'AC', 'DL'],
+                    ['AA', 'AC', 'DL'],
+                    id='search_engine',
+                    style={'color':'Green', 'font-size': 15},
                     inline=True
                 ),
                 dbc.Stack([
@@ -155,6 +162,11 @@ class DashApp:
                 airline_exclude=filter_options['airline_exclude'].split(',')
                 if filter_options['airline_exclude'] != '' else [],
             )
+
+            search_engin_filter = SearchEngineFilter(
+                search_engine = filter_options['search_engine']
+            )
+
             price_filter = PriceFilter(
                 min_quota=1,
                 max_miles_per_person=999999,
@@ -163,6 +175,7 @@ class DashApp:
             )
             airbounds = [AirBound.parse_raw(x) for x in search_data]
             airbounds = filter_airbounds(airbounds, airbound_filter)
+            airbounds = filter_search_engine(airbounds, search_engin_filter)
             airbounds = filter_prices(airbounds, price_filter)
             return [x.json() for x in airbounds]
 
@@ -221,13 +234,15 @@ class DashApp:
             Output('filter_options', 'data'),
             Input('apply_filters', 'n_clicks'),
             State('cabin_class', 'value'),
+            State('search_engine', 'value'),
             State('airline_include', 'value'),
             State('airline_exclude', 'value'),
             prevent_initial_call=True
         )
-        def get_filter_options(n_clicks, cabin_class, airline_include, airline_exclude):
+        def get_filter_options(n_clicks, cabin_class, search_engine, airline_include, airline_exclude):
             return {
                 'cabin_class': cabin_class,
+                'search_engine': search_engine,
                 'airline_include': airline_include,
                 'airline_exclude': airline_exclude
             }
