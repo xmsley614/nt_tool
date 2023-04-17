@@ -1,10 +1,15 @@
 ## User Guide
+
 ### update Apr 13 2023
+
 1. install requirements
+
 ```
 pip install -r requirements.txt
 ```
-2. In use_aa.py or use_ac.py or use_dl.py set the conditions you want. 
+
+2. In use_aa.py or use_ac.py or use_dl.py set the conditions you want.
+
 ```python
     origins = ['HKG']
     destinations = ['KUL']
@@ -30,10 +35,10 @@ pip install -r requirements.txt
         mixed_cabin_accepted=True
     )
 ```
+
 3. Run use_aa.py or use_ac.py and you will see the output file.
 
-4. You can also run web_branch.py and go through with a web view. Currently the app wiil use both engines to search results.
-
+4. You can also run web_branch.py and go through with a web view. Currently the app will use both engines to search results.
 
 If you like this project, welcome to buy me a coffee.
 
