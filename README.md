@@ -11,6 +11,21 @@
 version: "3.8"
 services:
   web:
+    image: falantasw/nt-tool:${FILL ME WITH LATEST TAG}
+    pull_policy: if_not_present
+    ports:
+      - 8050:8050
+    volumes:
+      - ./input:/code/input
+      - ./output:/code/output
+```
+Visit [falanta's docker hub registry](https://hub.docker.com/repository/docker/falantasw/nt-tool/general) and update the image above with the latest tag. 
+
+Sample compose file
+```
+version: "3.8"
+services:
+  web:
     image: falantasw/nt-tool:0.0.1
     pull_policy: if_not_present
     ports:
@@ -18,9 +33,8 @@ services:
     volumes:
       - ./input:/code/input
       - ./output:/code/output
-      
 ```
-Note: it will pull image from [falanta's docker hub registry](https://hub.docker.com/repository/docker/falantasw/nt-tool/general)
+
 
 2.2. Create an input directory and an output directory under the directory where the docker-compose.yml stays.
 
