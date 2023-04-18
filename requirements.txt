@@ -8,3 +8,5 @@ dash==2.9.1
 pydantic>=1.10.6
 dash-bootstrap-components>=1.4.0
 pydantic-computed>=0.2.1
+psutil==5.9.4
+chime==0.7.0
