@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pandas as pd
 import requests
@@ -350,7 +350,7 @@ def convert_dl_response_to_models(response: requests.Response) -> List:
     return results
 
 
-def results_to_excel(results):
+def results_to_excel(results, out_file_dir: Optional[str] = './output', out_file_name: Optional[str] = 'output.xlsx'):
     if len(results) == 0:
         print('No results at all, finished.')
     else:
@@ -366,7 +366,7 @@ def results_to_excel(results):
             width_dict[col] = max_len
         sf = StyleFrame(df, styler_obj=Styler())
         sf.set_column_width_dict(width_dict)
-        writer = sf.to_excel('output.xlsx', row_to_add_filters=0)
+        writer = sf.to_excel(f'{out_file_dir}/{out_file_name}', row_to_add_filters=0)
         writer.save()
         print('Success! Please check the output excel file.')
 

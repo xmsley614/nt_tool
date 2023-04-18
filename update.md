@@ -1,3 +1,7 @@
+2023-04-18
+1. Add docker support for linux, arm and x86
+2. Refactor searchers into main.
+
 2023-04-13
 1. Add DL engine support. DL engine will only return first 20 results.
 2. Use some way to filter results with the extremely high requirement of miles of AA and DL.
