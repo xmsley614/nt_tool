@@ -61,10 +61,8 @@ def calculate_aa_mix_by_segment(target_cabin_class: CabinClass, duration_list: L
         x.sort(reverse=True)
         cabin_equal_or_lower_list = [v for v in x if target_cabin_class >= v]
         if len(cabin_equal_or_lower_list) == 0:
-            if len(x) == 1 and x[0] == CabinClass.F:
-                actual_cabin_list.append(CabinClass.F)  # domestic F class with international J class
-            else:
-                print('error')  # any other situation needs to debug
+            #  no results satisfied, use the first element of list.
+            actual_cabin_list.append(x[0])
         else:
             actual_cabin_list.append(cabin_equal_or_lower_list[0])
     if all([x == target_cabin_class for x in actual_cabin_list]):
