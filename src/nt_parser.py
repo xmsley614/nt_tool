@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pandas as pd
 import requests
@@ -61,10 +61,8 @@ def calculate_aa_mix_by_segment(target_cabin_class: CabinClass, duration_list: L
         x.sort(reverse=True)
         cabin_equal_or_lower_list = [v for v in x if target_cabin_class >= v]
         if len(cabin_equal_or_lower_list) == 0:
-            if len(x) == 1 and x[0] == CabinClass.F:
-                actual_cabin_list.append(CabinClass.F)  # domestic F class with international J class
-            else:
-                print('error')  # any other situation needs to debug
+            #  no results satisfied, use the first element of list.
+            actual_cabin_list.append(x[0])
         else:
             actual_cabin_list.append(cabin_equal_or_lower_list[0])
     if all([x == target_cabin_class for x in actual_cabin_list]):
@@ -350,7 +348,7 @@ def convert_dl_response_to_models(response: requests.Response) -> List:
     return results
 
 
-def results_to_excel(results):
+def results_to_excel(results, out_file_dir: Optional[str] = './output', out_file_name: Optional[str] = 'output.xlsx'):
     if len(results) == 0:
         print('No results at all, finished.')
     else:
@@ -366,7 +364,7 @@ def results_to_excel(results):
             width_dict[col] = max_len
         sf = StyleFrame(df, styler_obj=Styler())
         sf.set_column_width_dict(width_dict)
-        writer = sf.to_excel('output.xlsx', row_to_add_filters=0)
+        writer = sf.to_excel(f'{out_file_dir}/{out_file_name}', row_to_add_filters=0)
         writer.save()
         print('Success! Please check the output excel file.')
 

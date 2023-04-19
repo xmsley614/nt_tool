@@ -162,7 +162,7 @@ class DashApp:
                 airline_exclude=filter_options['airline_exclude'].split(',')
                 if filter_options['airline_exclude'] != '' else [],
             )
-
+            
             search_engin_filter = SearchEngineFilter(
                 search_engine = filter_options['search_engine']
             )
