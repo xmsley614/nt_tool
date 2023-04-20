@@ -27,24 +27,21 @@ def is_script_running(script_name):
     """
     for q in psutil.process_iter():
         if q.name().startswith("python"):
-            if (
-                len(q.cmdline()) > 1
-                and script_name in q.cmdline()[1]
-                and q.pid != os.getpid()
-            ):
+            if (len(q.cmdline()) > 1 and script_name in q.cmdline()[1]
+                    and q.pid != os.getpid()):
                 return True
     return False
 
 
-def play_success_sound(num):
+def play_success_sound(num=3):
+    chime.theme("zelda")
     for _ in range(num):
         chime.success()
         time.sleep(1)
 
 
-def play_error_sound(num):
+def play_error_sound(num=3):
     chime.theme("zelda")
-    #  while True:
     for _ in range(num):
         chime.error()
         time.sleep(1)

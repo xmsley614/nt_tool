@@ -5,26 +5,30 @@ from multiprocessing import Pool
 
 from aa_searcher import Aa_Searcher
 from ac_searcher import Ac_Searcher
+from notification import results_beautify, send_sms, send_wechat
 from nt_filter import AirBoundFilter, filter_airbounds, filter_prices
 from nt_models import CabinClass, PriceFilter
 from nt_parser import (convert_aa_response_to_models,
-                       convert_ac_response_to_models, results_to_excel)
+                       convert_ac_response_to_models, results_to_csv,
+                       results_to_excel)
 from nt_sorter import get_default_sort_options, sort_airbounds
 from utils import date_range
 
 
 class Query(object):
+    """Query struct"""
+
     def __init__(
-        self,
-        focus,
-        origin,
-        dest,
-        start_dt,
-        end_dt,
-        cabin_class,  # JY
-        max_duration,  # 30
-        airline,  # AC
-        max_stops,  # 1
+            self,
+            focus,
+            origin,
+            dest,
+            start_dt,
+            end_dt,
+            cabin_class,  # JY
+            max_duration,  # 30
+            airline,  # AC/NH/EY/EK
+            max_stops,  # 1
     ):
         self.focus = focus
         self.origin = origin
@@ -35,7 +39,7 @@ class Query(object):
         else:  # default: JY
             self.cabin_class = [CabinClass.J, CabinClass.Y]
         self.max_duration = max_duration if max_duration else 30
-        # airline: AC/NH/EY/EK
+        # airline include: AC/NH/EY/EK
         self.airline = airline.split("/") if airline else []
         self.max_stops = max_stops if max_stops else 1
 
@@ -126,17 +130,27 @@ def worker(query):
 
     airbounds = filter_airbounds(airbounds, airbound_filter)
     airbounds = filter_prices(airbounds, price_filter)
+    # TODO: add more filters
     results = []
     for x in airbounds:
         results.extend(x.to_flatted_list())
-    results_to_excel(results)
+
+    results_to_excel(results)  # store excel with timestamps
+    # results_to_csv(results) # store to history.csv
+
+    # send notifications to phone (wechat/sms)
+    msg_content = results_beautify(results)
+    send_wechat(msg_content, "Remaining Quota Found!")
+    #  send_sms(msg_content)
+
+    # TODO: show/update results in browser
 
 
 def search_all():
     queries = get_queries("queries.csv")
     pool = Pool()
     for query in queries:
-        pool.apply_async(worker, args=(query,))
+        pool.apply_async(worker, args=(query, ))
     pool.close()
     pool.join()
 

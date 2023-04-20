@@ -1,3 +1,9 @@
+2023-04-19
+
+1. Add wechat/sms notification. (`cp config.sample.py config.py` and replace
+   the content)
+2. Add results_to_csv method to store history searches.
+
 2023-04-18
 
 1. Add sound notification.

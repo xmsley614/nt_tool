@@ -82,6 +82,18 @@ class WxPusher:
         return token
 
 
+def send_wechat(content, summary):
+    wxp = WxPusher()
+    wxp.send_message(
+        content,
+        token=config.TOKEN,
+        summary=summary,
+        topic_ids=config.TOPIC_IDS,
+        uids=config.UIDS,
+        #  verifyPay=True,
+    )
+
+
 ####### smsbao #######
 SMSAPI = "http://api.smsbao.com/"
 
@@ -104,33 +116,43 @@ def md5(str):
     return m.hexdigest()
 
 
-def send_sms(phone, content):
+def send_sms(content):
     """send short message to phone
 
-    :phone: 13712345678
+    :phone: format 13712345678
     :content: message content
 
     """
-    data = urllib.parse.urlencode(
-        {"u": config.USER, "p": config.PASSWORD, "m": phone, "c": content}
-    )
-    send_url = SMSAPI + "sms?" + data
-    response = urllib.request.urlopen(send_url)
-    the_page = response.read().decode("utf-8")
-    print(statusStr[the_page])
+    for phone in config.PHONE_NUMS:
+        data = urllib.parse.urlencode({
+            "u": config.USER,
+            "p": config.PASSWORD,
+            "m": phone,
+            "c": content
+        })
+        send_url = SMSAPI + "sms?" + data
+        response = urllib.request.urlopen(send_url)
+        the_page = response.read().decode("utf-8")
+        print(statusStr[the_page])
+
+
+def results_beautify(results):
+    """convert results (list of dict) to msg_content"""
+    res = []
+    for x in results:
+        content = (str(x["flight_codes"]) + "," + str(x["from_to"]) + "," +
+                   str(x["departure_time"]) + "," + str(x["arrival_time"]) +
+                   "," + str(x["duration_in_all"]) + "," +
+                   str(x["cabin_class"]) + ",quota: " + str(x["quota"]))
+        res.append(content)
+
+    content = ""
+    for x in res:
+        content += x + "\n"
+
+    return content
 
 
 if __name__ == "__main__":
-    # Wechat
-    wxp = WxPusher()
-    wxp.send_message(
-        "message content",
-        token=config.TOKEN,
-        summary="abstract",
-        topic_ids=config.TOPIC_IDS,
-        uids=config.UIDS,
-        #  verifyPay=True,
-    )
-    # SMS
-    for phone in config.PHONE_NUMS:
-        send_sms(phone, "message content")
+    send_wechat("message content", "message summary")
+    send_sms("message content")

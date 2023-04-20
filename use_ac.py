@@ -1,24 +1,20 @@
 import time
 from datetime import datetime, timedelta
-from nt_models import CabinClass, PriceFilter
-from nt_parser import convert_ac_response_to_models, results_to_excel
-from nt_filter import filter_prices, filter_airbounds, AirBoundFilter
+
 from ac_searcher import Ac_Searcher
+from nt_filter import AirBoundFilter, filter_airbounds, filter_prices
+from nt_models import CabinClass, PriceFilter
+from nt_parser import (convert_ac_response_to_models, results_to_csv,
+                       results_to_excel)
 from utils import date_range
 
-if __name__ == '__main__':
-    origins = ['SHA']
-    destinations = ['TYO']
-    start_dt = '2023-06-20'
-    end_dt = '2023-06-20'
+if __name__ == "__main__":
+    origins = ["SHA"]
+    destinations = ["TYO"]
+    start_dt = "2023-06-20"
+    end_dt = "2023-06-25"
     dates = date_range(start_dt, end_dt)
-    #  means eco, pre, biz and first
-    cabin_class = [
-        "ECO",
-        "PRE",
-        "BIZ",
-        "FIRST"
-    ]
+    cabin_class = ["ECO", "PRE", "BIZ", "FIRST"]
     airbound_filter = AirBoundFilter(
         max_stops=1,
         airline_include=[],
@@ -28,7 +24,7 @@ if __name__ == '__main__':
         min_quota=1,
         max_miles_per_person=999999,
         preferred_classes=[CabinClass.J, CabinClass.F, CabinClass.Y],
-        mixed_cabin_accepted=True
+        mixed_cabin_accepted=True,
     )
     # seg_sorter = {
     #     'key': 'departure_time',  # only takes 'duration_in_all', 'stops', 'departure_time' and 'arrival_time'.
@@ -39,7 +35,9 @@ if __name__ == '__main__':
     for ori in origins:
         for des in destinations:
             for date in dates:
-                print(f'search for {ori} to {des} on {date} @ {datetime.now().strftime("%H:%M:%S")}')
+                print(
+                    f'search for {ori} to {des} on {date} @ {datetime.now().strftime("%H:%M:%S")}'
+                )
                 response = acs.search_for(ori, des, date, cabin_class)
                 v1 = convert_ac_response_to_models(response)
                 airbounds.extend(v1)
@@ -50,4 +48,5 @@ if __name__ == '__main__':
     results = []
     for x in airbounds:
         results.extend(x.to_flatted_list())
-    results_to_excel(results)
+    #  results_to_excel(results)
+    results_to_csv(results)

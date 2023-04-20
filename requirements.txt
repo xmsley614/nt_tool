@@ -10,3 +10,5 @@ dash-bootstrap-components>=1.4.0
 pydantic-computed>=0.2.1
 psutil==5.9.4
 chime==0.7.0
+# twilio==8.0.0
+# wxpusher=2.2.0
