@@ -1,14 +1,13 @@
+2023-04-20
+1. Add docker support for linux, arm and x86.
+2. Refactor searchers into main.
+
 2023-04-19
 
-1. Add wechat/sms notification. (`cp config.sample.py config.py` and replace
-   the content)
-2. Add results_to_csv method to store history searches.
-
-2023-04-18
-
 1. Add sound notification.
-2. Get queries from a csv file, a query includes origin, destination, date
-   range, and other options for filtering. Multiple queires are run as multi-processes.
+2. Get queries from a csv file, a query includes origin, destination, date range, and other options for filtering. Multiple queires are run as multi-processes.
+3. Add wechat/sms notification. (`cp config.sample.py config.py` and replace the content)
+4. Add results_to_csv method to store history searches.
 
 2023-04-13
 

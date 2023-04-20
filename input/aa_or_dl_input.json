@@ -1,0 +1,13 @@
+{
+    "origins": ["LAX"],
+    "destinations": ["TYO"],
+    "start_dt": "2023-05-05",
+    "end_dt": "2023-05-07",
+    "max_stops": 1,
+    "airline_include": [],
+    "airline_exclude": [],
+    "min_quota": 1,
+    "max_miles_per_person": 999999,
+    "preferred_classes": ["J","F","Y","W"],
+    "mixed_cabin_accepted": "True"
+}   

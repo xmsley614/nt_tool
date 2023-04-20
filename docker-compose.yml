@@ -1,8 +1,13 @@
 version: "3.8"
 services:
   web:
-    build: .
+    image: falantasw/nt-tool:0.0.1
+    # build:
+    #   context: ./
+    pull_policy: if_not_present
     ports:
-      - "8050:8050"
+      - 8050:8050
     volumes:
-      - .:/code
+      - ./input:/code/input
+      - ./output:/code/output
+      

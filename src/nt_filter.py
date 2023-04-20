@@ -13,7 +13,6 @@ class AirBoundFilter(BaseModel):
 class SearchEngineFilter(BaseModel):
     search_engine: List[str] = []
 
-
 def filter_airbounds(airbounds: List[AirBound], airbound_filter: AirBoundFilter) -> List[AirBound]:
     result = []
     for ab in airbounds:
