@@ -147,7 +147,7 @@ def worker(query):
 
 
 def search_all():
-    queries = get_queries("queries.csv")
+    queries = get_queries("../input/queries.csv")
     pool = Pool()
     for query in queries:
         pool.apply_async(worker, args=(query, ))
