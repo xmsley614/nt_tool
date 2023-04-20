@@ -420,7 +420,11 @@ def convert_dl_response_to_models(response: requests.Response) -> List:
     return results
 
 
-def results_to_excel(results, out_file_dir: Optional[str] = './output', out_file_name: Optional[str] = 'output.xlsx'):
+def results_to_excel(
+    results,
+    out_file_dir: Optional[str] = "./output",
+    out_file_name: Optional[str] = "output.xlsx",
+):
     if len(results) == 0:
         print("No results at all, finished.")
     else:
@@ -437,11 +441,14 @@ def results_to_excel(results, out_file_dir: Optional[str] = './output', out_file
             width_dict[col] = max_len
         sf = StyleFrame(df, styler_obj=Styler())
         sf.set_column_width_dict(width_dict)
-<<<<<<< HEAD:nt_parser.py
 
-        filename = f'./history/{datetime.now().strftime("%Y%m%d-%H:%M:%S")}.xlsx'
+        filename = f'./output/{datetime.now().strftime("%Y%m%d-%H:%M:%S")}.xlsx'
         sf.to_excel(filename, row_to_add_filters=0).save()
         #  sf.to_excel("output.xlsx", row_to_add_filters=0).save()
+
+        #  writer = sf.to_excel(f"{out_file_dir}/{out_file_name}",
+        #                       row_to_add_filters=0)
+        #  writer.save()
 
         play_success_sound(3)
         print("Success! Please check the output excel file.")
@@ -460,7 +467,7 @@ def results_to_csv(results):
         # store search history (time + results)
         col_names = list(df.columns)
         num_col = len(col_names)
-        filename = "./history/history.csv"
+        filename = "./output/history.csv"
         with open(filename, "a") as fin:
             csv_writer = csv.writer(fin)
             row = ["" for i in range(num_col)]
@@ -474,11 +481,6 @@ def results_to_csv(results):
 
         play_success_sound(3)
         print("Success! Please check the output excel file.")
-=======
-        writer = sf.to_excel(f'{out_file_dir}/{out_file_name}', row_to_add_filters=0)
-        writer.save()
-        print('Success! Please check the output excel file.')
->>>>>>> main:src/nt_parser.py
 
 
 def results_to_dash_table(results):
