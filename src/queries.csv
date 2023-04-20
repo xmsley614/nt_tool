@@ -1,6 +1,0 @@
-focus,origins,dests,start_dates,end_dates,cabin_class,max_duration,airline,max_stops
-1,SHA,TYO,2023-04-30,2023-05-05,JFY,30,AC,0
-0,YVR,YYZ,2023-06-20,2023-06-23,JY,20,AC/NH,1
-1,TYO,SHA,2023-07-01,2023-07-03,JY,15,AC/NH/EY,0
-1,YYZ,YVR,2023-07-15,2023-07-15,JY,12,AC/NH/EY/EK,0
-0,YYZ,YVR,2023-07-15,2023-07-15,,,,
