@@ -43,6 +43,18 @@ class CabinClass(str, Enum):
     First = 'F'
     FIRST = 'F'
 
+    @staticmethod
+    def from_string(cabin_str):
+        if cabin_str == "ECO":
+            return CabinClass.Economy
+        elif cabin_str == "PRE":
+            return CabinClass.Premium
+        elif cabin_str == "BIZ":
+            return CabinClass.Business
+        elif cabin_str == "FIRST":
+            return CabinClass.First
+        raise Exception(f"Unknown cabin string: {cabin_str}")
+
     def __gt__(self, other):
         if self == 'F' and other != 'F':
             return True
