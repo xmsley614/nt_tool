@@ -1,3 +1,6 @@
+2023-06-01
+1. Update AC seacher with new solution. Still works to be done. Now you can run use_ac2.py instead.
+
 2023-04-18
 1. Add docker support for linux, arm and x86
 2. Refactor searchers into main.
