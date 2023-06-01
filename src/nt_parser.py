@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
+import re
 
 import pandas as pd
 import requests
@@ -10,6 +11,20 @@ from nt_models import Pricing, Segment, AirBound, CabinClass
 
 def convert_miles(miles: int) -> str:
     return str(miles / 1000) + 'k'
+
+
+def calculate_ac2_duration(duration_str: str):
+    pattern = r'(?:(\d+)h)?\s*(?:(\d+)m)?'
+    match = re.match(pattern, duration_str)
+
+    if match:
+        hours = int(match.group(1) or 0)  # 如果小时数未匹配到，则默认为0
+        minutes = int(match.group(2) or 0)  # 如果分钟数未匹配到，则默认为0
+        # 计算总秒数
+        total_seconds = hours * 3600 + minutes * 60
+        return total_seconds
+    else:
+        raise ValueError("Invalid time string format.")
 
 
 def convert_aa_quota(origin_quota: int) -> int:
@@ -203,6 +218,73 @@ def convert_ac_response_to_models(response: requests.Response) -> List:
         return results
 
 
+def convert_ac_response_to_models2(response: requests.Response) -> List:
+    """
+    Convert response from searcher request.
+    param response: Response of searcher request.
+    :return: List of nested json. Each json means an itinerary.
+    """
+    if response.status_code != 200:
+        return list()
+    else:
+        response_json = response.json()
+        temp1 = response_json.get('data', {}).get('getFareRedemption', {}).get('bound',
+                                                                               []) if response_json is not None else {}
+        air_bounds_json = temp1[0]['boundSolution'] if len(temp1) > 0 else []
+        results = []
+        saver_class_list = ['X', 'I', 'A']
+        for r in air_bounds_json:
+            r = dict(r)
+            is_ac_flight = 'AC' in r['carrierType']
+            print(r['carrierType'], is_ac_flight)
+            prices_raw = r['fare']['cabins']
+            segs_raw = [rr for rr in r['flightSegments']]
+            prices = []
+            segs = []
+            for sg in segs_raw:
+                temp_seg = Segment(
+                    flight_code=sg['airline']['operatingCode'] + sg['flightNumber'],
+                    aircraft=sg['equipmentType']['aircraftCode'],
+                    departure=sg['originAirport'],
+                    excl_departure_time=sg['scheduledDepartureDateTime'],
+                    arrival=sg['destinationAirport'],
+                    excl_arrival_time=sg['scheduledArrivalDateTime'],
+                    excl_duration_in_seconds=calculate_ac2_duration(sg['segmentDuration']),
+                    excl_connection_time_in_seconds=0,
+                )
+                segs.append(temp_seg)
+
+            for pr in prices_raw:
+                # price_raw now means the lowest of every physical cabin
+                # filter AC flight without saver class code
+                # if pr['bookingClass']['marketingCode'] == 'AC' \
+                #         and pr['bookingClass']['bookingClassCode'] not in saver_class_list:
+                #     continue
+                # else:
+                print(pr)
+                temp_pricing = Pricing(
+                    cabin_class=CabinClass['W' if pr['shortCabin'] == 'Premium Econ.' else pr['shortCabin']],
+                    quota=9,  # no info from raw
+                    excl_miles=pr['fareAvailable'][0]['redemptionBooking']['pointsPortion']['baseFarePoints'],
+                    excl_cash_in_base_unit=pr['fareAvailable'][0]['redemptionBooking']['cashPortion']['taxesTotal'],
+                    excl_currency='CAD',
+                    is_mix=False,
+                    mix_detail='N/A'
+                )
+                prices.append(temp_pricing)
+
+            air_bound = AirBound(
+                engine='AC',
+                excl_duration_in_all_in_seconds=calculate_ac2_duration(r['durationTotal']),
+                stops=int(r['segmentCount']) - 1,
+                segments=segs,
+                price=prices
+            )
+            print(air_bound)
+            results.append(air_bound)
+        return results
+
+
 def convert_aa_response_to_models(response: requests.Response) -> List:
     if response.status_code != 200:
         return []
@@ -348,7 +430,7 @@ def convert_dl_response_to_models(response: requests.Response) -> List:
     return results
 
 
-def results_to_excel(results, out_file_dir: Optional[str] = './output', out_file_name: Optional[str] = 'output.xlsx'):
+def results_to_excel(results, out_file_dir: Optional[str] = '../output', out_file_name: Optional[str] = 'output.xlsx'):
     if len(results) == 0:
         print('No results at all, finished.')
     else:

@@ -43,6 +43,8 @@ class CabinClass(str, Enum):
     First = 'F'
     FIRST = 'F'
 
+
+
     @staticmethod
     def from_string(cabin_str):
         if cabin_str == "ECO":
@@ -257,3 +259,4 @@ class AirBound(BaseModel):
 
     class Config:
         use_enum_values = True
+
