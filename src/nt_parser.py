@@ -262,8 +262,16 @@ def convert_ac_response_to_models2(response: requests.Response) -> List:
                 #     continue
                 # else:
                 print(pr)
+
+                if pr["shortCabin"] == "Premium Econ.":
+                    cabin_class = "W"
+                elif pr["shortCabin"] == "First Class":
+                    cabin_class = "F"
+                else:
+                    cabin_class = pr["shortCabin"]
+
                 temp_pricing = Pricing(
-                    cabin_class=CabinClass['W' if pr['shortCabin'] == 'Premium Econ.' else pr['shortCabin']],
+                    cabin_class=CabinClass[cabin_class],
                     quota=9,  # no info from raw
                     excl_miles=pr['fareAvailable'][0]['redemptionBooking']['pointsPortion']['baseFarePoints'],
                     excl_cash_in_base_unit=pr['fareAvailable'][0]['redemptionBooking']['cashPortion']['taxesTotal'],
