@@ -25,11 +25,11 @@ def match_query(air_bound: AirBound, q: FlightQuery):
             continue
         if q.num_passengers and price.quota < q.num_passengers:
             continue
-        if air_bound.engine.upper() == "AA" and price.miles <= q.max_aa_points:
+        if air_bound.engine.upper() == "AA" and price.excl_miles <= q.max_aa_points:
             return True
-        if air_bound.engine.upper() == "AC" and price.miles <= q.max_ac_points:
+        if air_bound.engine.upper() == "AC" and price.excl_miles <= q.max_ac_points:
             return True
-        if air_bound.engine.upper() == "DL" and price.miles <= q.max_dl_points:
+        if air_bound.engine.upper() == "DL" and price.excl_miles <= q.max_dl_points:
             return True
 
     # Did not find any price in selected cabin.
